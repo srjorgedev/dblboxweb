@@ -1,0 +1,270 @@
+---
+const DEFAULT_TIERS = [
+    { id: "S", label: "S", color: "#ff7f7f" },
+    { id: "A", label: "A", color: "#ffbf7f" },
+    { id: "B", label: "B", color: "#ffff7f" },
+    { id: "C", label: "C", color: "#7fff7f" },
+    { id: "D", label: "D", color: "#7fbfff" },
+];
+---
+
+<section id="tier-board">
+    <ul id="tiers-container">
+        {
+            DEFAULT_TIERS.map((tier) => (
+                <li class="tier-row" data-tier-id={tier.id}>
+                    <header
+                        class="tier-label"
+                        style={`background-color: ${tier.color};`}
+                    >
+                        <textarea rows="1">{tier.label}</textarea>
+                    </header>
+                    <div class="tier-content drop-zone" />
+                    <aside class="tier-actions">
+                        <button
+                            class="action-btn move-up"
+                            title="Mover Fila Arriba"
+                        >
+                            ▲
+                        </button>
+                        <button
+                            class="action-btn move-down"
+                            title="Mover Fila Abajo"
+                        >
+                            ▼
+                        </button>
+                        <button
+                            class="action-btn delete-tier"
+                            title="Eliminar Fila"
+                        >
+                            ✕
+                        </button>
+                    </aside>
+                </li>
+            ))
+        }
+    </ul>
+</section>
+<style>
+    #tier-board {
+        width: 100%;
+        contain: layout;
+        padding: 1rem;
+
+        & #tiers-container {
+            display: flex;
+            flex-direction: column;
+            list-style: none;
+            border-radius: 1rem;
+            overflow: hidden;
+
+            & .tier-row {
+                display: flex;
+                min-height: 90px;
+                background-color: #1a1b25;
+                border-top: 1px solid #333;
+                transition: border-color 0.1s ease;
+
+                &:first-child {
+                    border-top: none;
+                }
+
+                &.drag-over {
+                    border-color: var(--color-highlight);
+                }
+
+                & .tier-label {
+                    width: 100px;
+                    aspect-ratio: 1 / 1;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 0.5rem;
+                    flex-shrink: 0;
+
+                    & textarea {
+                        background: transparent;
+                        border: none;
+                        text-align: center;
+                        font-size: 1.5rem;
+                        font-weight: bold;
+                        color: #111;
+                        width: 100%;
+                        resize: none;
+                        outline: none;
+                        overflow: hidden;
+                        font-family: inherit;
+                    }
+                }
+                & .tier-content {
+                    flex-grow: 1;
+                    background-color: rgba(0, 0, 0, 0.2);
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 0.5rem;
+                    padding: 0.5rem;
+                    align-content: flex-start;
+                }
+                
+                & .tier-actions {
+                    width: 40px;
+                    display: flex;
+                    flex-direction: column;
+                    background-color: #111;
+                    border-left: 1px solid #333;
+
+                    & .action-btn {
+                        flex: 1;
+                        background: transparent;
+                        border: none;
+                        color: #666;
+                        cursor: pointer;
+                        font-size: 0.8rem;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        transition: all 0.2s ease;
+
+                        &:hover {
+                            background-color: #222;
+                            color: var(--color-highlight);
+                        }
+                        &.delete-tier:hover {
+                            color: #ff4f4f;
+                        }
+                    }
+                }
+            }
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const tiersContainer = document.getElementById("tiers-container");
+        const poolContainer = document.getElementById("pool-container");
+        const TIER_COLORS = [
+            "#ff7f7f",
+            "#ffbf7f",
+            "#ffff7f",
+            "#7fff7f",
+            "#7fbfff",
+            "#ff7fff",
+            "#bf7fff",
+        ];
+        let draggedElement: HTMLElement | null = null;
+
+        document.addEventListener("dragstart", (e) => {
+            const target = (e.target as HTMLElement).closest(".unit-card");
+            if (!target) return;
+            draggedElement = target as HTMLElement;
+            setTimeout(() => draggedElement?.classList.add("dragging"), 0);
+        });
+
+        document.addEventListener("dragend", () => {
+            draggedElement?.classList.remove("dragging");
+            draggedElement = null;
+        });
+
+        document.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            const zone = (e.target as HTMLElement).closest(".drop-zone");
+            document
+                .querySelectorAll(".drop-zone.drag-over")
+                .forEach((el) => el.classList.remove("drag-over"));
+            if (zone) zone.classList.add("drag-over");
+
+            if (!zone || !draggedElement) return;
+
+            const afterElement = getDragAfterElement(zone, e.clientY);
+            if (afterElement == null) {
+                zone.appendChild(draggedElement);
+            } else {
+                zone.insertBefore(draggedElement, afterElement);
+            }
+        });
+
+        document.addEventListener("drop", (e) => {
+            e.preventDefault();
+            if (draggedElement) {
+                draggedElement.classList.add("drop-animation");
+                setTimeout(
+                    () => draggedElement?.classList.remove("drop-animation"),
+                    200,
+                );
+            }
+            (e.target as HTMLElement)
+                .closest(".drop-zone")
+                ?.classList.remove("drag-over");
+        });
+
+        function getDragAfterElement(
+            container: Element,
+            y: number,
+        ): Element | null {
+            const draggableElements = [
+                ...container.querySelectorAll(".unit-card:not(.dragging)"),
+            ] as HTMLElement[];
+            const result = draggableElements.reduce<{
+                offset: number;
+                element: Element | null;
+            }>(
+                (closest, child) => {
+                    const box = child.getBoundingClientRect();
+                    const offset = y - box.top - box.height / 2;
+                    if (offset < 0 && offset > closest.offset)
+                        return { offset, element: child };
+                    return closest;
+                },
+                { offset: Number.NEGATIVE_INFINITY, element: null },
+            );
+            return result.element;
+        }
+
+        document.addEventListener("click", (e) => {
+            const target = e.target as HTMLElement;
+
+            if (target.closest("#add-tier-btn")) {
+                addNewTier();
+                return;
+            }
+
+            const row = target.closest(".tier-row") as HTMLElement;
+            if (!row) return;
+
+            if (target.closest(".move-up")) {
+                const prev = row.previousElementSibling;
+                if (prev) tiersContainer?.insertBefore(row, prev);
+            } else if (target.closest(".move-down")) {
+                const next = row.nextElementSibling;
+                if (next) tiersContainer?.insertBefore(next, row);
+            } else if (target.closest(".delete-tier")) {
+                row.querySelectorAll(".unit-card").forEach((unit) =>
+                    poolContainer?.appendChild(unit),
+                );
+                row.remove();
+            }
+        });
+
+        function addNewTier() {
+            if (!tiersContainer) return;
+            const newRow = document.createElement("li");
+            newRow.className = "tier-row";
+            newRow.dataset.tierId = `new-${Date.now()}`;
+            const color =
+                TIER_COLORS[
+                    tiersContainer.children.length % TIER_COLORS.length
+                ];
+            newRow.innerHTML = `
+            <header class="tier-label" style="background-color: ${color};"><textarea rows="1">NEW</textarea></header>
+            <div class="tier-content drop-zone"></div>
+            <aside class="tier-actions">
+                <button class="action-btn move-up" title="Mover Fila Arriba">▲</button>
+                <button class="action-btn move-down" title="Mover Fila Abajo">▼</button>
+                <button class="action-btn delete-tier" title="Eliminar Fila">✕</button>
+            </aside>
+        `;
+            tiersContainer.appendChild(newRow);
+        }
+    });
+</script>

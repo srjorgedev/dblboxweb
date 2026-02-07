@@ -1,0 +1,185 @@
+---
+import { getUnit } from "../../../hooks/getUnit";
+import type { Lang } from "../../../types/lang.types";
+import Layout from "../../../layouts/Layout.astro";
+import { isValidLang } from "../../../utils/i18n";
+
+const { lang, id } = Astro.params;
+
+if (!isValidLang(lang) || !id) {
+    return new Response(null, { status: 404 });
+}
+
+const data = await getUnit(lang, id);
+const API_BCHACUT = import.meta.env.API_BCHACUT;
+const API_ASSETS_URL = import.meta.env.API_ASSETS_URL;
+
+const indexWords = ["first", "second", "third", "fourth"];
+---
+
+<Layout
+    lang={lang as Lang}
+    title={`[${data._id}] - ${data.name.content[0]}`}
+    affinity={data.color.content[0].id}
+>
+    <section class="unit-banner" data-unit-container>
+        {/* Nombres de la unidad */}
+        {
+            data.name.content.map((name, index) => (
+                <h1
+                    class={`unit-name ${indexWords[index] || ""}`}
+                    data-state={index + 1}
+                >
+                    {name}
+                </h1>
+            ))
+        }
+
+        {/* Imágenes de la unidad (Estados) */}
+        {
+            Array.from({ length: data.states || 1 }, (_, i) => i + 1).map(
+                (state) => (
+                    <img
+                        class={`unit-image ${indexWords[state - 1] || ""}`}
+                        data-state={state}
+                        src={`${API_BCHACUT}${data.num}${state > 1 ? state : ""}.webp`}
+                        alt={`${data.name.content[0]} - Estado ${state}`}
+                    />
+                ),
+            )
+        }
+
+        {/* Contenedor de iconos apilados a la derecha */}
+        <div class="prop-container">
+            {
+                data.tagswitch && (
+                    <img
+                        class="prop-icon tag-icon"
+                        data-target-state="2"
+                        src={`${API_ASSETS_URL}props/TAG.webp`}
+                        alt="Switch Tag"
+                    />
+                )
+            }
+            {
+                data.transform && (
+                    <img
+                        class="prop-icon transform-icon"
+                        data-target-state={data.states}
+                        src={`${API_ASSETS_URL}props/TRANSFORM.webp`}
+                        alt="Switch Transform"
+                    />
+                )
+            }
+            {
+                data.states === 3 && data.fusion && (
+                    <img
+                        class="prop-icon synchro-icon"
+                        data-target-state="3"
+                        src={`${API_ASSETS_URL}props/SYNCHRO.webp`}
+                        alt="Switch Fusion"
+                    />
+                )
+            }
+        </div>
+    </section>
+</Layout>
+
+<style>
+    .unit-banner {
+        width: 100%;
+        display: flex;
+        margin-top: 2rem;
+        background-color: var(--header-bg-transparent);
+        border: 2px solid var(--header-bg);
+        position: relative;
+        min-height: 300px; /* Ajusta según tus necesidades */
+        overflow: hidden;
+    }
+
+    .unit-image {
+        width: 100%;
+        height: auto;
+        display: none; /* Ocultas por defecto */
+        object-fit: cover;
+    }
+
+    .unit-name {
+        position: absolute;
+        left: 1.5rem;
+        bottom: 1rem;
+        margin: 0;
+        z-index: 5;
+        display: none; /* Ocultas por defecto */
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Mostrar solo el estado activo (por defecto el primero) */
+    .unit-image.active,
+    .unit-name.active,
+    .unit-image.first,
+    .unit-name.first {
+        display: block;
+    }
+
+    /* Contenedor de iconos lateral */
+    .prop-container {
+        position: absolute;
+        top: 1rem;
+        right: 1rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.8rem;
+        z-index: 10;
+    }
+
+    .prop-icon {
+        width: 3.2rem;
+        height: auto;
+        filter: grayscale(100%) brightness(0.8);
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .prop-icon:hover {
+        filter: grayscale(0%) brightness(1);
+        transform: scale(1.1);
+    }
+
+    /* Clase para cuando el icono está "activo" */
+    .prop-icon.active {
+        filter: grayscale(0%);
+        border-bottom: 2px solid gold;
+    }
+</style>
+
+<script>
+    const container = document.querySelector("[data-unit-container]");
+    const icons = document.querySelectorAll(".prop-icon");
+    const images = document.querySelectorAll<HTMLImageElement>(".unit-image");
+    const names = document.querySelectorAll<HTMLElement>(".unit-name");
+
+    icons.forEach((icon) => {
+        icon.addEventListener("click", () => {
+            const targetState = icon.getAttribute("data-target-state");
+
+            const isCurrentlyActive = icon.classList.contains("active");
+            const newState = isCurrentlyActive ? "1" : targetState;
+
+            updateElements(images, newState);
+            updateElements(names, newState);
+
+            icons.forEach((i) => i.classList.remove("active"));
+            if (!isCurrentlyActive) icon.classList.add("active");
+        });
+    });
+
+    function updateElements(elements: NodeListOf<HTMLImageElement | HTMLElement>, state: string | null) {
+        elements.forEach((el) => {
+            el.style.display = "none";
+            if (el.getAttribute("data-state") === state) {
+                el.style.display = "block";
+            }
+        });
+    }
+</script>

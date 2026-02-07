@@ -1,0 +1,284 @@
+section {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 1rem;
+    position: relative;
+    z-index: 20;
+
+    & header {
+        & h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #eee;
+        }
+    }
+
+    & main {
+        display: flex;
+        flex-direction: row;
+        gap: 0.5rem;
+
+        & article.option-pill {
+            display: inline-block;
+            position: relative;
+            user-select: none;
+
+            &:not(.option-search) {
+                cursor: pointer;
+            }
+
+            &.option-search {
+
+                & div.pill.has-content,
+                & div.pill.has-content:hover {
+                    background-color: var(--color-highlight) !important;
+                    color: #111 !important;
+
+                    & input {
+                        color: #111 !important;
+
+                        &::placeholder {
+                            color: #111 !important;
+                        }
+                    }
+
+                    & :global(svg) {
+                        fill: #111 !important;
+                    }
+                }
+
+                /* Normal grey hover ONLY when empty */
+                &:hover div.pill:not(.has-content) {
+                    background-color: var(--color-7);
+                    color: #111;
+
+                    & :global(svg) {
+                        fill: #111;
+                    }
+                }
+            }
+
+            & div.pill {
+                height: 2.5rem;
+                display: flex;
+                align-items: center;
+                gap: 0.25rem;
+                padding: 0 0.75rem;
+                border-radius: 5rem;
+                background-color: var(--color-6);
+                color: #333;
+                box-sizing: border-box;
+                transition:
+                    background-color 0.2s ease,
+                    color 0.2s ease;
+
+                & span {
+                    font-size: 1rem;
+                    font-weight: 600;
+                    margin-right: 0.5rem;
+                }
+
+                & :global(svg) {
+                    fill: #333;
+
+                    & :global(path) {
+                        transition: transform 180ms ease;
+                        transform-origin: center;
+                    }
+                }
+
+                & input {
+                    all: unset;
+                    height: 100%;
+                    outline: none;
+                    font-size: 16px;
+                    -webkit-appearance: none;
+                    appearance: none;
+
+                    padding: 0;
+                    margin: 0;
+
+                    line-height: 1;
+
+                    &:-webkit-autofill,
+                    &:-webkit-autofill:hover,
+                    &:-webkit-autofill:focus,
+                    &:-webkit-autofill:active {
+                        -webkit-box-shadow: 0 0 0 30px var(--color-6) inset !important;
+                        -webkit-text-fill-color: #333 !important;
+                        transition: background-color 5000s ease-in-out 0s;
+                    }
+
+                    &::selection {
+                        background-color: transparent;
+                    }
+
+                    &::-webkit-search-cancel-button {
+                        -webkit-appearance: none;
+                        height: 18px;
+                        width: 18px;
+                        background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23111' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><line x1='18' y1='6' x2='6' y2='18'></line><line x1='6' y1='6' x2='18' y2='18'></line></svg>");
+                        background-size: contain;
+                        background-repeat: no-repeat;
+                        cursor: pointer;
+                        margin-right: 0.25rem;
+                        opacity: 0.7;
+                        transition: opacity 0.2s ease;
+
+                        &:hover {
+                            opacity: 1;
+                        }
+                    }
+                }
+
+                &:not(.search-pill *) {
+                    &:hover {
+                        background-color: var(--color-7);
+                        color: #111;
+
+                        & :global(svg) {
+                            & :global(.arrow-down) {
+                                transform: translateY(3px);
+                            }
+
+                            & :global(.arrow-up) {
+                                transform: translateY(-3px);
+                            }
+
+                            & :global(.line-1) {
+                                transform: translateY(1.5px);
+                                transition-delay: 0ms;
+                            }
+
+                            & :global(.line-2) {
+                                transform: translateY(1.5px);
+                                transition-delay: 40ms;
+                            }
+
+                            & :global(.line-3) {
+                                transform: translateY(1px);
+                                transition-delay: 80ms;
+                            }
+                        }
+                    }
+                }
+            }
+
+            &.active div.pill {
+                background-color: var(--color-highlight);
+                color: #111;
+
+                & :global(svg) {
+                    fill: #111;
+                }
+            }
+
+            &:not(.active, .option-search):hover div.pill {
+                background-color: var(--color-7);
+            }
+
+            & div.summary {
+                display: flex;
+                flex-direction: column;
+                position: absolute;
+                left: 0;
+                top: calc(100% + 0.5rem);
+                width: auto;
+                min-width: 220px;
+                gap: 0.5rem;
+                padding: 1rem;
+                background-color: rgba(0, 0, 0, 0.1);
+                backdrop-filter: blur(4rem);
+                border-radius: 1rem;
+                border: 1px solid rgba(255, 255, 255, 0.1);
+                z-index: 100;
+                overflow: hidden;
+
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(10px);
+                transition:
+                    opacity 0.2s ease-out,
+                    transform 0.2s ease-out,
+                    visibility 0.2s;
+
+                &.active {
+                    opacity: 1;
+                    visibility: visible;
+                    transform: translateY(0);
+                }
+
+                & button.reset-filters-btn {
+                    width: 100%;
+                    height: 2.5rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 0.75rem;
+                    border-radius: 5rem;
+                    margin-top: 0.5rem;
+                    cursor: pointer;
+                    border: none;
+                    background-color: var(--color-6);
+                    color: #333;
+                    transition:
+                        background-color 0.2s ease,
+                        transform 0.2s ease;
+
+                    &:hover {
+                        background-color: var(--color-7);
+
+                        & :global(svg) {
+                            transform: rotate(360deg);
+                        }
+                    }
+
+                    &:active {
+                        transform: scale(0.98);
+                    }
+
+                    & :global(svg) {
+                        transition: transform 0.333s ease;
+                        width: 1.25rem;
+                        height: 1.25rem;
+                    }
+                }
+            }
+        }
+
+        & article.option-order {
+            & div.summary {
+                padding: 0 !important;
+                gap: 0;
+                min-width: 180px;
+
+                & .order-button {
+                    width: 100%;
+                    background: transparent;
+                    border: none;
+                    color: #eee;
+                    padding: 1rem 1.25rem;
+                    text-align: left;
+                    cursor: pointer;
+                    font-size: 0.95rem;
+                    font-weight: 500;
+                    transition:
+                        background 0.2s ease,
+                        color 0.2s ease;
+                    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+                    &:last-child {
+                        border-bottom: none;
+                    }
+
+                    &:hover,
+                    &.active {
+                        background-color: rgba(255, 255, 255, 0.1);
+                        color: var(--color-highlight);
+                    }
+                }
+            }
+        }
+    }
+}

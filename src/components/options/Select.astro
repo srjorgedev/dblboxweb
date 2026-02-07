@@ -1,0 +1,51 @@
+---
+import type { Data } from "../../types/data.types";
+
+interface Props {
+    data: Data[];
+    name: string;
+    label: string;
+}
+
+const { data, name, label } = Astro.props;
+---
+
+<div class="select-container">
+    <label for={name}>{label}</label>
+    <select name={name} class={`select-${name}`}>
+        <option value="0" selected disabled aria-disabled="true"
+            >Opciones...</option
+        >
+        {
+            data.map((el) => {
+                return <option value={el.id}>{el.name}</option>;
+            })
+        }
+    </select>
+</div>
+
+<style>
+    div.select-container {
+        display: flex;
+        flex-direction: column;
+        margin-right: 0;
+        position: relative;
+        width: 15rem;
+
+        & label {
+            margin-bottom: 0.25rem;
+            font-weight: normal;
+            font-size: 0.95rem;
+        }
+
+        & select {
+            padding: 0.5rem;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            width: 100%;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+    }
+</style>

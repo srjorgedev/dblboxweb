@@ -1,0 +1,139 @@
+---
+import type { Lang } from "../../types/lang.types";
+
+const user = Astro.locals.user;
+
+console.log(user);
+
+interface Props {
+    lang: Lang;
+}
+
+const { lang } = Astro.props;
+---
+
+{
+    user != null && (
+        <div class="user-widget">
+            <div class="user-profile">
+                <img referrerpolicy="no-referrer" src={user.avatar} alt="User Avatar" class="user-avatar" />
+            </div>
+            <div class="user-controls">
+                <a href="/profile">Perfil</a>
+                <form action="/api/logout" method="POST">
+                    <button type="submit" class="control-item logout-btn">
+                        Salir
+                    </button>
+                </form>
+            </div>
+        </div>
+    )
+}
+
+<script>
+    const userProfile = document.querySelector<HTMLDivElement>(".user-profile");
+    const userControls =
+        document.querySelector<HTMLDivElement>(".user-controls");
+
+    if (userProfile && userControls) {
+        userProfile.addEventListener("click", () => {
+            userControls.classList.toggle("active");
+        });
+
+        document.addEventListener("click", (event: PointerEvent) => {
+            if (
+                !userProfile.contains(event.target as Node) &&
+                !userControls.contains(event.target as Node)
+            ) {
+                userControls.classList.remove("active");
+            }
+        });
+    }
+</script>
+
+<style>
+    .user-widget {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 2.5rem;
+        width: 2.5rem;
+        position: relative;
+
+        & .user-controls.active {
+            visibility: visible;
+        }
+
+        & .user-controls {
+            display: flex;
+            flex-direction: column;
+
+            visibility: hidden;
+
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 0.5rem;
+
+            width: max-content;
+            min-width: 120px;
+
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            z-index: 100;
+
+            & form {
+                width: 100%;
+                margin: 0;
+            }
+
+            & a,
+            button {
+                display: block;
+                width: 100%;
+                text-decoration: none;
+                font-size: 1.125rem;
+                padding: 0.5rem 1rem;
+                text-align: left;
+                background: none;
+                border: none;
+                cursor: pointer;
+                color: #333;
+                transition: background 0.2s;
+
+                &:hover {
+                    background-color: #f3f4f6;
+                }
+            }
+
+            & .logout-btn {
+                color: #ef4444;
+            }
+        }
+
+        & .user-profile {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+            border-radius: 50%;
+            transition: box-shadow 0.2s;
+
+            &:hover {
+                box-shadow: 0 0 0 2px #3b82f6;
+            }
+
+            .user-avatar {
+                width: 100%;
+                height: 100%;
+                object-fit: cover;
+                border-radius: 50%;
+            }
+        }
+    }
+</style>

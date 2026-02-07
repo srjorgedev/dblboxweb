@@ -1,0 +1,176 @@
+---
+import LangDropdown from "./LangDropdown.astro";
+import { getTranslations } from "../../utils/translations";
+import type { Lang } from "../../types/lang.types";
+import UserBadge from "./UserBadge.astro";
+
+interface Props {
+    lang: Lang;
+    current?: number;
+}
+
+const { user } = Astro.locals;
+
+const { lang, current } = Astro.props;
+const t = getTranslations(lang);
+
+const pages = [
+    { href: `/${lang}`, title: t.nav.characters },
+    { href: `/${lang}/equips`, title: t.nav.equips },
+    { href: `/${lang}/tiermaker`, title: t.nav.tiermaker },
+    { href: "#", title: t.nav.conceptmaker },
+];
+---
+
+<header class="global-header">
+    <nav class="header-nav">
+        <ul></ul>
+        <ul class="ul-pages">
+            {
+                pages.map((page, index) => {
+                    return (
+                        <li
+                            class:list={[
+                                "menu-option",
+                                { active: current == index },
+                            ]}
+                        >
+                            <a href={page.href}>{page.title}</a>
+                        </li>
+                    );
+                })
+            }
+        </ul>
+        <ul class="ul-settings">
+            <li>
+                <LangDropdown />
+            </li>
+            <li>
+                <UserBadge lang={lang} />
+            </li>
+            <li class="menu-option login">
+                {
+                    !user && (
+                        <a href={`/${lang}/login`} class="login-button">
+                            Login
+                        </a>
+                    )
+                }
+            </li>
+        </ul>
+    </nav>
+</header>
+
+<style>
+    header.global-header {
+        width: 100%;
+        background-color: var(--header-bg);
+        box-shadow: var(--header-shadow);
+        backdrop-filter: blur(4rem);
+        position: sticky;
+        top: 1rem;
+        z-index: 100;
+        
+        --font-size: 1.05rem;
+        
+        margin-top: 1rem;
+        border-radius: 10rem;
+        
+        & nav {
+            height: 4.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem 1rem;
+
+            & ul {
+                width: 100%;
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                list-style: none;
+                margin: 0;
+                padding: 0;
+
+                & li.menu-option:not(.login) {
+                    padding: 0.25rem 0.5rem;
+                    width: max-content;
+                    position: relative;
+
+                    & a {
+                        text-decoration: none;
+                        font-size: var(--font-size);
+                    }
+
+                    &::before {
+                        content: "";
+                        position: absolute;
+                        width: 4px;
+                        height: 4px;
+                        border-radius: 4px;
+                        background-color: var(--color-6);
+                        transform: translateX(-50%);
+                        left: 50%;
+                        bottom: -4px;
+                        opacity: 0;
+                        transition:
+                            opacity 0.2s,
+                            width 0.2s,
+                            background-color 0.2s;
+                    }
+                }
+
+                & li.menu-option.login {
+                    & a {
+                        padding: 0.5rem 1.5rem;
+                        background-color: var(--color-highlight);
+                        text-decoration: none;
+                        font-size: var(--font-size);
+                        border-radius: 2rem;
+                        color: #111;
+                    }
+
+                    &:hover {
+                        & a {
+                            color: #111;
+                        }
+                    }
+                }
+
+                & li.menu-option:not(.active, .login) {
+                    & a {
+                        color: var(--color-6);
+
+                        &:hover {
+                            color: var(--color-7);
+                        }
+                    }
+
+                    &:hover {
+                        &::before {
+                            opacity: 1;
+                            width: calc(100% - 1.5rem);
+                            background-color: var(--color-7);
+                        }
+                    }
+                }
+
+                & li.menu-option.active {
+                    & a {
+                        color: var(--color-highlight);
+                    }
+
+                    &::before {
+                        opacity: 1;
+                        width: calc(100% - 1.5rem);
+                        background-color: var(--color-highlight);
+                    }
+                }
+            }
+
+            & ul.ul-settings {
+                justify-content: flex-end;
+            }
+        }
+    }
+</style>

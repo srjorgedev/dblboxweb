@@ -1,0 +1,27 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import TierMakerOptionSection from "../../../components/tiermaker/TierMakerOptionSection.astro";
+import TierBoard from "../../../components/tiermaker/TierBoard.astro";
+import UnitGallery from "../../../components/tiermaker/UnitGallery.astro";
+import { getAllUnits } from "../../../hooks/getAllUnits";
+import { isValidLang } from "../../../utils/i18n";
+import type { Lang } from "../../../types/lang.types";
+import type { UnitsResponse } from "../../../types/unit.types";
+
+const { lang } = Astro.params;
+
+if (!isValidLang(lang)) {
+	return new Response(null, { status: 404, statusText: "Invalid language" });
+}
+
+const { data }: UnitsResponse = await getAllUnits(lang);
+const apiBchaico = import.meta.env.PUBLIC_API_BCHAICO;
+---
+
+<Layout lang={lang as Lang} title="TierMaker - DBL BOX" current={2}>
+    <main>
+        <TierBoard />
+        <TierMakerOptionSection lang={lang} />
+        <UnitGallery units={data} apiBchaico={apiBchaico} />
+    </main>
+</Layout>

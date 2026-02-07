@@ -1,0 +1,259 @@
+---
+import { getAllData } from "../../hooks/getData";
+import type { Lang } from "../../types/lang.types";
+
+import "../options/optionSection.css"
+
+import Filter from "../svg/Filter.astro";
+import OrderV2 from "../svg/OrderV2.astro";
+import Reload from "../svg/Reload.astro";
+import Select from "./Select.astro";
+import Search from "../svg/Search.astro";
+
+interface Props {
+    lang: Lang;
+}
+
+const { lang } = Astro.props;
+
+const tags = await getAllData("tag", lang!);
+const chapters = await getAllData("chapter", lang!);
+const colors = await getAllData("color", lang!);
+const types = await getAllData("type", lang!);
+const rarities = await getAllData("rarity", lang!);
+---
+
+<section class="opction-section">
+    <header>
+        <h2>Opciones</h2>
+    </header>
+    <main>
+        <article class="option-pill option-filter">
+            <div class="pill filter-pill">
+                <Filter />
+                <span class="option-pill-text option-filter-text">Filtros</span>
+            </div>
+            <div class="summary filter-summary animated-fade-up">
+                <Select data={tags} name="tag" label="Etiquetas" />
+                <Select data={chapters} name="chapter" label="Capítulos" />
+                <Select data={colors} name="color" label="Colores" />
+                <Select data={types} name="type" label="Tipos" />
+                <Select data={rarities} name="rarity" label="Rarezas" />
+                <button class="reset-filters-btn">
+                    <Reload />
+                    Limpar filtros
+                </button>
+            </div>
+        </article>
+        <article class="option-pill option-order">
+            <div class="pill order-pill">
+                <OrderV2 />
+                <span class="option-pill-text option-order-text">Ordenar</span>
+            </div>
+            <div class="summary order-summary animated-fade-up">
+                <input
+                    type="button"
+                    class:list={["order-button"]}
+                    data-value="history"
+                    value="Historia"
+                />
+                <input
+                    type="button"
+                    class:list={["order-button"]}
+                    data-value="rarity"
+                    value="Rareza"
+                />
+            </div>
+        </article>
+        <article class="option-pill option-search">
+            <div class="pill search-pill">
+                <Search />
+                <input
+                    type="search"
+                    name="search"
+                    class="search-input"
+                    placeholder="Buscar unidad..."
+                    autocomplete="off"
+                />
+            </div>
+        </article>
+    </main>
+</section>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        type FilterState = {
+            [key: string]: string | number | null;
+        };
+
+        const selectedFilters: FilterState = {
+            tag: null,
+            chapter: null,
+            color: null,
+            type: null,
+            rarity: null,
+            zenkai: null,
+            search: null as string | null,
+        };
+
+        const allOptionPills = document.querySelectorAll<HTMLElement>(
+            "article.option-pill",
+        );
+        const allSummaries = document.querySelectorAll<HTMLElement>(".summary");
+
+        allOptionPills.forEach((pill) => {
+            const trigger = pill.querySelector(".pill");
+            const summary = pill.querySelector(".summary");
+
+            if (pill.classList.contains('option-search')) return;
+
+            trigger?.addEventListener("click", (event) => {
+                event.stopPropagation();
+
+                const wasActive = pill.classList.contains("active");
+
+                allOptionPills.forEach((p) => p.classList.remove("active"));
+                allSummaries.forEach((s) => s.classList.remove("active"));
+
+                if (!wasActive) {
+                    pill.classList.add("active");
+                    summary?.classList.add("active");
+                }
+            });
+        });
+
+        document.addEventListener("click", () => {
+            allOptionPills.forEach((p) => p.classList.remove("active"));
+            allSummaries.forEach((s) => s.classList.remove("active"));
+        });
+
+        allSummaries.forEach((s) => {
+            s.addEventListener("click", (e) => e.stopPropagation());
+        });
+
+        const order_buttons = document.querySelectorAll<HTMLInputElement>(
+            ".order-summary .order-button",
+        );
+
+        order_buttons.forEach((button) => {
+            button.addEventListener("click", () => {
+                const selectedOrder = button.getAttribute("data-value");
+            });
+        });
+
+        const units =
+            document.querySelectorAll<HTMLAnchorElement>("a.unit-card-a");
+
+        const tag_select =
+            document.querySelector<HTMLSelectElement>("select.select-tag");
+        const chapter_select = document.querySelector<HTMLSelectElement>(
+            "select.select-chapter",
+        );
+        const color_select = document.querySelector<HTMLSelectElement>(
+            "select.select-color",
+        );
+        const type_select =
+            document.querySelector<HTMLSelectElement>("select.select-type");
+        const rarity_select = document.querySelector<HTMLSelectElement>(
+            "select.select-rarity",
+        );
+
+        const search_input = document.querySelector<HTMLInputElement>(".search-input");
+        const search_pill = search_input?.closest('.pill');
+
+        search_input?.addEventListener("input", (e) => {
+            const target = e.target as HTMLInputElement;
+            const hasText = target.value.trim() !== "";
+            selectedFilters.search = hasText ? target.value.trim() : null;
+            
+            if (search_pill) {
+                search_pill.classList.toggle('has-content', hasText);
+            }
+            
+            applyFilters();
+        });
+
+        const reset_btn = document.querySelector<HTMLInputElement>(
+            "button.reset-filters-btn",
+        );
+
+        reset_btn?.addEventListener("click", () => resetFilters());
+
+        function applyFilters() {
+            units.forEach((unit) => unit.classList.remove("filtered"));
+
+            units.forEach((unit) => {
+                for (const [filterName, filterValue] of Object.entries(
+                    selectedFilters,
+                )) {
+                    if (filterValue !== null) {
+                        if (filterName === 'search') {
+                            const unitName = unit.getAttribute('data-name')?.toLowerCase() || '';
+                            const searchValue = (filterValue as string).toLowerCase();
+                            if (!unitName.includes(searchValue)) {
+                                unit.classList.add("filtered");
+                                break;
+                            }
+                            continue;
+                        }
+
+                        const unitValue = unit.getAttribute(
+                            `data-${filterName}`,
+                        );
+                        const filterString = filterValue.toString();
+
+                        if (unitValue!.includes(",")) {
+                            const filterArray = unitValue!.split(",");
+                            if (!filterArray.includes(filterString!)) {
+                                unit.classList.add("filtered");
+                                break;
+                            }
+                        } else {
+                            if (!unitValue || unitValue !== filterString) {
+                                unit.classList.add("filtered");
+                                break;
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function resetFilters() {
+            for (const key in selectedFilters) {
+                selectedFilters[key] = null;
+            }
+
+            tag_select!.value = "0";
+            chapter_select!.value = "0";
+            color_select!.value = "0";
+            type_select!.value = "0";
+            rarity_select!.value = "0";
+            if (search_input) {
+                search_input.value = "";
+                search_pill?.classList.remove('has-content');
+            }
+
+            applyFilters();
+        }
+
+        function setFilter(
+            element: HTMLSelectElement,
+            filterName: keyof typeof selectedFilters,
+        ) {
+            element.addEventListener("change", (event) => {
+                const target = event.target as HTMLSelectElement;
+                selectedFilters[filterName] =
+                    target.value !== "0" ? parseInt(target.value) : null;
+
+                applyFilters();
+            });
+        }
+
+        setFilter(tag_select!, "tag");
+        setFilter(chapter_select!, "chapter");
+        setFilter(color_select!, "color");
+        setFilter(type_select!, "type");
+        setFilter(rarity_select!, "rarity");
+    });
+</script>

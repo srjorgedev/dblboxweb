@@ -1,0 +1,44 @@
+---
+import Layout from "../layouts/Layout.astro";
+import DragonRadar from "../components/svg/DragonRadar.astro";
+
+import type { Lang } from "../types/lang.types";
+import { isValidLang, defaultLang } from "../utils/i18n";
+import { getTranslations } from "../utils/translations";
+
+const { lang: paramLang } = Astro.params;
+const pathname = Astro.url.pathname;
+const segments = pathname.split("/").filter(Boolean);
+const urlLang = segments[0];
+
+const rawLang = isValidLang(urlLang)
+    ? urlLang
+    : isValidLang(paramLang)
+      ? paramLang
+      : defaultLang;
+const lang: Lang = (isValidLang(rawLang) ? rawLang : defaultLang) as Lang;
+const t = getTranslations(lang);
+
+const { errorMessage } = Astro.locals;
+---
+
+<Layout lang={lang} title={t.error.title}>
+    <section class="error-section">
+        <article>
+            <h1 class="error-title">{t.error.title}</h1>
+            <p class="error-description">
+                {t.error.description}
+            </p>
+        </article>
+        <DragonRadar />
+    </section>
+</Layout>
+
+<style>
+    section.error-section {
+        display: grid;
+        flex: 1;
+        place-items: center;
+        grid-template-columns: 1fr 1fr;
+    }
+</style>

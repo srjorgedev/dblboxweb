@@ -1,0 +1,151 @@
+---
+import Header from "../components/header/Header.astro";
+import type { Lang } from "../types/lang.types";
+
+interface Props {
+    lang: Lang;
+    title: string;
+    affinity?: number;
+    current?: number;
+}
+
+const { lang, title, affinity, current } = Astro.props;
+---
+
+<!doctype html>
+<html data-affinity={affinity ? affinity : 0} lang={lang}>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>{title}</title>
+        <link rel="icon" type="image/webp" href="/favicon.webp" />
+    </head>
+    <body>
+        <main class="layout-container">
+            <Header current={current} lang={lang} />
+            <slot />
+        </main>
+    </body>
+</html>
+
+<style is:global>
+    *,
+    *::before,
+    *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+        border: none;
+    }
+
+    :root {
+        --bg: #1a1b25;
+
+        --color-0: rgba(0, 0, 0, 0.2);
+        --color-1: rgba(0, 0, 0, 0.2);
+        --color-2: rgba(245, 255, 52, 0.281);
+        --color-3: rgba(78, 0, 180, 0.2);
+        --color-4: rgba(38, 187, 1, 0.2);
+        --color-5: rgba(0, 87, 201, 0.2);
+
+        --color-6: #979797;
+        --color-7: #b3b3b3;
+
+        --color-highlight: #fdd017;
+
+        --color-00: rgba(255, 255, 255, 0.05);
+        --color-10: rgba(255, 255, 255, 0.15);
+        --color-20: rgba(255, 238, 0, 0.15);
+        --color-30: rgba(91, 0, 211, 0.15);
+        --color-40: rgba(42, 211, 0, 0.15);
+        --color-50: rgba(0, 126, 255, 0.15);
+
+        --header-bg-transparent: rgba(0, 0, 0, 0.1);
+        --header-bg: rgb(0, 0, 0);
+        --color: #f1f1f1;
+    }
+
+    html {
+        font-size: 16px !important;
+        color: var(--color);
+        scrollbar-gutter: stable;
+        font-family: "Roboto", system-ui, sans-serif;
+        min-height: 100vh;
+    }
+
+    html[data-affinity="0"] {
+        --header-bg: var(--color-0);
+        --header-bg-transparent: var(--color-00);
+    }
+
+    html[data-affinity="1"] {
+        --header-bg: var(--color-1);
+        --header-bg-transparent: var(--color-10);
+    }
+
+    html[data-affinity="2"] {
+        --header-bg: var(--color-2);
+        --header-bg-transparent: var(--color-20);
+    }
+
+    html[data-affinity="3"] {
+        --header-bg: var(--color-3);
+        --header-bg-transparent: var(--color-30);
+    }
+
+    html[data-affinity="4"] {
+        --header-bg: var(--color-4);
+        --header-bg-transparent: var(--color-40);
+    }
+
+    html[data-affinity="5"] {
+        --header-bg: var(--color-5);
+        --header-bg-transparent: var(--color-50);
+    }
+
+    body {
+        width: 100%;
+        height: 100%;
+        background-color: var(--bg);
+    }
+
+    main.layout-container {
+        max-width: 1280px;
+        margin: 0 auto;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* Animación: Desplazamiento hacia arriba + Opacidad */
+    .animated-fade-up {
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(10px);
+        transition:
+            opacity 0.2s ease-out,
+            transform 0.2s ease-out,
+            visibility 0.2s;
+    }
+
+    /* Se activa con la misma clase que ya usas */
+    .animated-fade-up.active {
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+
+    /* OPCIONAL: Animación de escalado (crece un poco al aparecer) */
+    .animated-scale {
+        opacity: 0;
+        visibility: hidden;
+        transform: scale(0.95);
+        transition: all 0.2s ease-out;
+    }
+
+    .animated-scale.active {
+        opacity: 1;
+        visibility: visible;
+        transform: scale(1);
+    }
+</style>

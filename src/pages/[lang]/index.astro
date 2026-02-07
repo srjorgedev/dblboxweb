@@ -1,0 +1,24 @@
+---
+import { getAllUnits } from "../../hooks/getAllUnits";
+import Layout from "../../layouts/Layout.astro";
+import type { Lang } from "../../types/lang.types";
+import type { UnitsResponse } from "../../types/unit.types";
+import UnitGallery from "../../components/gallery/UnitGallery.astro";
+import OptionSection from "../../components/options/OptionSection.astro";
+
+import { isValidLang } from "../../utils/i18n";
+
+const { lang } = Astro.params;
+
+if (!isValidLang(lang)) {
+	return new Response(null, { status: 404, statusText: "Invalid language" });
+}
+
+const { data, meta }: UnitsResponse = await getAllUnits(lang as string);
+---
+
+<Layout lang={lang as Lang} title="[PERSONAJES] - DBL BOX" current={0}>
+	<OptionSection lang={lang} />
+
+	<UnitGallery data={data} lang={lang as Lang} />
+</Layout>

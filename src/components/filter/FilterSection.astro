@@ -1,0 +1,205 @@
+---
+import { getAllData } from "../../hooks/getData";
+import Reload from "../svg/Reload.astro";
+import Filter from "../svg/Filter.astro";
+import Select from "./Select.astro";
+
+import type { Lang } from "../../types/lang.types";
+import { getTranslations } from "../../utils/translations";
+
+interface Props {
+    lang: Lang;
+}
+
+const { lang } = Astro.props;
+
+const tags = await getAllData("tag", lang!);
+const chapters = await getAllData("chapter", lang!);
+const colors = await getAllData("color", lang!);
+const types = await getAllData("type", lang!);
+const rarities = await getAllData("rarity", lang!);
+
+const texts = getTranslations(lang);
+---
+
+<section class="filter-container">
+    <article class="filter-options-section">
+        <header>
+            <Filter />
+            <label for="filter-obtions-section">{texts.filterSection.title}</label>
+        </header>
+        <main class="filter-options">
+            <Select label={texts.filterSection.tagLabel} data={tags} name="tag" />
+            <Select label={texts.filterSection.chapterLabel} data={chapters} name="chapter" />
+            <Select label={texts.filterSection.colorLabel} data={colors} name="color" />
+            <Select label={texts.filterSection.typeLabel} data={types} name="type" />
+            <Select label={texts.filterSection.rarityLabel} data={rarities} name="rarity" />
+            <button class="reset-filters-btn">
+                <Reload />
+            </button>
+        </main>
+    </article>
+    <article class="order-options-section"></article>
+    <article class="paginate-options-section"></article>
+</section>
+
+<style>
+    section.filter-container {
+        display: block;
+        margin: 3rem 0;
+        background-image: linear-gradient(
+            to bottom,
+            rgba(255, 255, 255, 0.02) 30%,
+            rgba(255, 255, 255, 0)
+        );
+        padding: 1.5rem 1rem;
+
+        & article.filter-options-section {
+            & header {
+                display: flex;
+                margin-bottom: 0.5rem;
+                font-weight: 400;
+                font-size: 1.25rem;
+                align-items: center;
+                align-content: center;
+                gap: 0.5rem;
+            }
+
+            & main.filter-options {
+                display: flex;
+                flex-direction: row;
+                gap: 0.5rem;
+
+                & button.reset-filters-btn {
+                    border: none;
+                    cursor: pointer;
+                    padding: 0.5rem;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    height: 38px;
+                    width: 38px;
+                    aspect-ratio: 1 / 1;
+                    border-radius: 4px;
+                    align-self: self-end;
+                    transition:
+                        background-color 0.2s ease,
+                        transform 0.2s ease;
+                    border-radius: 100%;
+
+                    &:hover {
+                        background-color: #cdcdcd;
+                    }
+
+                    &:active {
+                        background-color: #b3b3b3;
+                        transform: rotate(180deg);
+                    }
+                }
+            }
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        type FilterState = {
+            [key: string]: number | null;
+        };
+
+        const selectedFilters: FilterState = {
+            tag: null,
+            chapter: null,
+            color: null,
+            type: null,
+            rarity: null,
+            zenkai: null,
+        };
+
+        const units =
+            document.querySelectorAll<HTMLAnchorElement>("a.unit-card-a");
+
+        const tag_select =
+            document.querySelector<HTMLSelectElement>("select.select-tag");
+        const chapter_select = document.querySelector<HTMLSelectElement>(
+            "select.select-chapter",
+        );
+        const color_select = document.querySelector<HTMLSelectElement>(
+            "select.select-color",
+        );
+        const type_select =
+            document.querySelector<HTMLSelectElement>("select.select-type");
+        const rarity_select = document.querySelector<HTMLSelectElement>(
+            "select.select-rarity",
+        );
+
+        const reset_btn = document.querySelector<HTMLInputElement>(
+            "button.reset-filters-btn",
+        );
+
+        reset_btn?.addEventListener("click", () => resetFilters());
+
+        function applyFilters() {
+            units.forEach((unit) => unit.classList.remove("filtered"));
+
+            units.forEach((unit) => {
+                for (const [filterName, filterValue] of Object.entries(
+                    selectedFilters,
+                )) {
+                    if (filterValue !== null) {
+                        const unitValue = unit.getAttribute(
+                            `data-${filterName}`,
+                        );
+                        const filterString = filterValue.toString();
+
+                        if (unitValue!.includes(",")) {
+                            const filterArray = unitValue!.split(",");
+                            if (!filterArray.includes(filterString!)) {
+                                unit.classList.add("filtered");
+                                break;
+                            }
+                        } else {
+                            if (!unitValue || unitValue !== filterString) {
+                                unit.classList.add("filtered");
+                                break;
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function resetFilters() {
+            for (const key in selectedFilters) {
+                selectedFilters[key] = null;
+            }
+
+            tag_select!.value = "0";
+            chapter_select!.value = "0";
+            color_select!.value = "0";
+            type_select!.value = "0";
+            rarity_select!.value = "0";
+
+            applyFilters();
+        }
+
+        function setFilter(
+            element: HTMLSelectElement,
+            filterName: keyof typeof selectedFilters,
+        ) {
+            element.addEventListener("change", (event) => {
+                const target = event.target as HTMLSelectElement;
+                selectedFilters[filterName] =
+                    target.value !== "0" ? parseInt(target.value) : null;
+
+                applyFilters();
+            });
+        }
+
+        setFilter(tag_select!, "tag");
+        setFilter(chapter_select!, "chapter");
+        setFilter(color_select!, "color");
+        setFilter(type_select!, "type");
+        setFilter(rarity_select!, "rarity");
+    });
+</script>
