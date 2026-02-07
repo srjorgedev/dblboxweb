@@ -36,6 +36,12 @@ const rarities = await getAllData("rarity", lang!);
         <article class="option-pill">
             <SaveTierButton client:visible />
         </article>
+        <article class="option-pill">
+            <button class="pill-button" id="reset-tier-btn">
+                <span>✕</span>
+                <span>Reset</span>
+            </button>
+        </article>
         <article class="option-pill option-filter">
             <div class="pill filter-pill">
                 <Filter />
@@ -153,6 +159,58 @@ const rarities = await getAllData("rarity", lang!);
             }
             
             applyFilters();
+        });
+
+        const reset_tier_btn = document.getElementById("reset-tier-btn");
+        reset_tier_btn?.addEventListener("click", async () => {
+            const tiersContainer = document.getElementById("tiers-container");
+            const poolContainer = document.getElementById("pool-container");
+            
+            if (!tiersContainer || !poolContainer) return;
+            
+            const unitsInTiers = Array.from(tiersContainer.querySelectorAll(".unit-card"));
+            if (unitsInTiers.length === 0) return;
+
+            // Visual feedback: Loading state
+            const originalContent = reset_tier_btn.innerHTML;
+            reset_tier_btn.innerHTML = `<span>⌛</span><span>Reseteando...</span>`;
+            reset_tier_btn.style.opacity = "0.7";
+            reset_tier_btn.style.pointerEvents = "none";
+
+            // Small delay to simulate processing/loading as requested
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            unitsInTiers.forEach(unit => {
+                poolContainer.appendChild(unit);
+            });
+
+            // Remove non-default tiers and reset default ones
+            const allRows = Array.from(tiersContainer.querySelectorAll(".tier-row"));
+            allRows.forEach(row => {
+                if (row.getAttribute("data-default") !== "true") {
+                    row.remove();
+                } else {
+                    const textarea = row.querySelector("textarea");
+                    if (textarea) {
+                        textarea.value = textarea.getAttribute("data-original-label") || "";
+                    }
+                }
+            });
+
+            // Restore original order in the pool
+            const allUnits = Array.from(poolContainer.querySelectorAll(".unit-card"));
+            allUnits.sort((a, b) => {
+                const idxA = parseInt(a.getAttribute("data-index") || "0");
+                const idxB = parseInt(b.getAttribute("data-index") || "0");
+                return idxA - idxB;
+            });
+
+            allUnits.forEach(unit => poolContainer.appendChild(unit));
+
+            // Restore button state
+            reset_tier_btn.innerHTML = originalContent;
+            reset_tier_btn.style.opacity = "";
+            reset_tier_btn.style.pointerEvents = "";
         });
 
         const reset_btn = document.querySelector<HTMLInputElement>(

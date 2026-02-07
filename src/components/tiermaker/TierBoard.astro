@@ -12,12 +12,12 @@ const DEFAULT_TIERS = [
     <ul id="tiers-container">
         {
             DEFAULT_TIERS.map((tier) => (
-                <li class="tier-row" data-tier-id={tier.id}>
+                <li class="tier-row" data-tier-id={tier.id} data-default="true">
                     <header
                         class="tier-label"
                         style={`background-color: ${tier.color};`}
                     >
-                        <textarea rows="1">{tier.label}</textarea>
+                        <textarea rows="1" data-original-label={tier.label}>{tier.label}</textarea>
                     </header>
                     <div class="tier-content drop-zone" />
                     <aside class="tier-actions">
@@ -160,19 +160,34 @@ const DEFAULT_TIERS = [
             "#bf7fff",
         ];
         let draggedElement: HTMLElement | null = null;
-        let scrollInterval: number | null = null;
+        
+        // Smooth scroll logic
+        let autoScrollSpeed = 0;
+        let animationFrameId: number | null = null;
 
-        const startAutoScroll = (direction: number) => {
-            if (scrollInterval) return;
-            scrollInterval = setInterval(() => {
-                window.scrollBy(0, direction * 35); // Even faster scroll
-            }, 10) as unknown as number; // More frequent updates
+        const updateScroll = () => {
+             if (autoScrollSpeed !== 0) {
+                window.scrollBy(0, autoScrollSpeed);
+                animationFrameId = requestAnimationFrame(updateScroll);
+             } else {
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                    animationFrameId = null;
+                }
+             }
+        };
+
+        const startAutoScroll = () => {
+             if (!animationFrameId) {
+                animationFrameId = requestAnimationFrame(updateScroll);
+             }
         };
 
         const stopAutoScroll = () => {
-            if (scrollInterval) {
-                clearInterval(scrollInterval);
-                scrollInterval = null;
+            autoScrollSpeed = 0;
+            if (animationFrameId) {
+                cancelAnimationFrame(animationFrameId);
+                animationFrameId = null;
             }
         };
 
@@ -189,21 +204,38 @@ const DEFAULT_TIERS = [
             stopAutoScroll();
         });
 
+        // Ensure scrolling stops if we leave the window
+        window.addEventListener("dragout", stopAutoScroll);
+        window.addEventListener("mouseleave", stopAutoScroll);
+
         document.addEventListener("dragover", (e) => {
             e.preventDefault();
 
             // Auto-scroll logic (Global check)
-            const threshold = 180; // Larger area
+            const threshold = 120; // Reduced area for better control
+            const maxSpeed = 25; // Maximum scroll speed per frame
             const mouseY = e.clientY;
             const viewportHeight = window.innerHeight;
 
-            if (mouseY < threshold) {
-                // Higher speed multiplier the closer to the edge
-                startAutoScroll(-1);
-            } else if (viewportHeight - mouseY < threshold) {
-                startAutoScroll(1);
-            } else {
+            if (mouseY < 0 || mouseY > viewportHeight) {
                 stopAutoScroll();
+                return;
+            }
+
+            if (mouseY < threshold) {
+                // Calculate intensity based on distance from edge (0 to 1)
+                const intensity = (threshold - Math.max(0, mouseY)) / threshold;
+                // Exponential ease-in for smoother acceleration near the very edge
+                const easedIntensity = intensity * intensity; 
+                autoScrollSpeed = -maxSpeed * easedIntensity;
+                startAutoScroll();
+            } else if (viewportHeight - mouseY < threshold) {
+                const intensity = (threshold - Math.max(0, viewportHeight - mouseY)) / threshold;
+                const easedIntensity = intensity * intensity;
+                autoScrollSpeed = maxSpeed * easedIntensity;
+                startAutoScroll();
+            } else {
+                autoScrollSpeed = 0; 
             }
 
             const zone = (e.target as HTMLElement).closest(".drop-zone");
@@ -281,6 +313,17 @@ const DEFAULT_TIERS = [
                 row.querySelectorAll(".unit-card").forEach((unit) =>
                     poolContainer?.appendChild(unit),
                 );
+                
+                if (poolContainer) {
+                    const allUnits = Array.from(poolContainer.querySelectorAll(".unit-card"));
+                    allUnits.sort((a, b) => {
+                        const idxA = parseInt(a.getAttribute("data-index") || "0");
+                        const idxB = parseInt(b.getAttribute("data-index") || "0");
+                        return idxA - idxB;
+                    });
+                    allUnits.forEach(unit => poolContainer.appendChild(unit));
+                }
+                
                 row.remove();
             }
         });

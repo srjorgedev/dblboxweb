@@ -59,7 +59,8 @@ section {
                 }
             }
 
-            & div.pill {
+            & div.pill,
+            & button.pill-button {
                 height: 2.5rem;
                 display: flex;
                 align-items: center;
@@ -72,6 +73,9 @@ section {
                 transition:
                     background-color 0.2s ease,
                     color 0.2s ease;
+                border: none;
+                cursor: pointer;
+                font-family: inherit;
 
                 & span {
                     font-size: 1rem;
@@ -165,7 +169,8 @@ section {
                 }
             }
 
-            &.active div.pill {
+            &.active div.pill,
+            &.active button.pill-button {
                 background-color: var(--color-highlight);
                 color: #111;
 
@@ -174,7 +179,8 @@ section {
                 }
             }
 
-            &:not(.active, .option-search):hover div.pill {
+            &:not(.active, .option-search):hover div.pill,
+            &:not(.active, .option-search):hover button.pill-button {
                 background-color: var(--color-7);
             }
 

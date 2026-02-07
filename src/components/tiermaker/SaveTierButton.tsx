@@ -6,20 +6,40 @@ export const SaveTierButton: React.FC = () => {
 
     const handleSave = async () => {
         const tiersContainer = document.getElementById('tiers-container');
-        if (!tiersContainer) {
-            console.error("Tier container not found!");
-            return;
-        }
+        if (!tiersContainer) return;
 
         setIsLoading(true);
+        await new Promise(resolve => setTimeout(resolve, 150));
 
         try {
             const canvas = await html2canvas(tiersContainer, {
                 backgroundColor: '#1a1b25',
                 useCORS: true,
-                allowTaint: true,
-                scale: 1.5,
+                scale: 2,
                 logging: false,
+                onclone: (clonedDoc) => {
+                    const clonedContainer = clonedDoc.getElementById('tiers-container');
+                    if (clonedContainer) {
+                        clonedContainer.style.borderRadius = '1rem';
+                        clonedContainer.style.overflow = 'hidden';
+                        clonedContainer.style.width = `${tiersContainer.offsetWidth}px`;
+                    }
+                    
+                    const style = clonedDoc.createElement('style');
+                    style.innerHTML = `
+                        * { 
+                            transition: none !important; 
+                            animation: none !important; 
+                        }
+                        .unit-card {
+                            display: block !important;
+                            opacity: 1 !important;
+                            visibility: visible !important;
+                            transform: none !important;
+                        }
+                    `;
+                    clonedDoc.head.appendChild(style);
+                },
                 ignoreElements: (element) => element.classList.contains('tier-actions'),
             });
 
@@ -29,7 +49,6 @@ export const SaveTierButton: React.FC = () => {
             link.click();
         } catch (error) {
             console.error("Error saving tier list:", error);
-            alert("Error al guardar la imagen.");
         } finally {
             setIsLoading(false);
         }
@@ -37,9 +56,10 @@ export const SaveTierButton: React.FC = () => {
 
     return (
         <button 
-            className="pill-button"
+            className={`pill-button ${isLoading ? 'active' : ''}`}
             onClick={handleSave} 
             disabled={isLoading}
+            style={isLoading ? { opacity: 0.7, pointerEvents: 'none' } : {}}
             title={isLoading ? "Procesando imagen..." : "Guardar Tier List como PNG"}
         >
             <span>{isLoading ? '⌛' : '📷'}</span>

@@ -13,7 +13,7 @@ const { units, apiBchaico } = Astro.props;
     <h3>Unidades Disponibles</h3>
     <div id="pool-container" class="drop-zone">
         {
-            units.map((unit) => {
+            units.map((unit, index) => {
                 const colors = unit.color.content.map((c) => c.id).join(",");
                 const tags = unit.tags.content.map((t) => t.id).join(",");
                 const names =
@@ -26,6 +26,7 @@ const { units, apiBchaico } = Astro.props;
                         draggable="true"
                         data-id={unit._id}
                         data-num={unit.num}
+                        data-index={index}
                         data-name={names}
                         data-color={colors}
                         data-tag={tags}
