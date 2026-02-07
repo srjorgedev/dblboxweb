@@ -7,8 +7,8 @@ export async function getAllUnits(lang: string): Promise<UnitsResponse> {
 
     const url = new URL(`${API_URL}${API_CURRENT_VERSION}/unit/all`);
     url.searchParams.append("lang", lang);
-    url.searchParams.append("limit", "10");
-    url.searchParams.append("page", "1");
+    // url.searchParams.append("limit", "10");
+    // url.searchParams.append("page", "1");
     
     console.log(url.toString())
 
