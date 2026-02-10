@@ -1,0 +1,256 @@
+---
+import type { Lang } from '../../types/lang.types';
+import type { UnitData } from '../../types/unit.types';
+
+interface Props {
+    unit: UnitData;
+    lang: Lang;
+}
+
+const {unit, lang} = Astro.props;
+
+const API_BCHAICO = import.meta.env.PUBLIC_API_BCHAICO;
+const API_COLOR_BANNER = import.meta.env.API_COLOR_BANNER;
+
+const color_bg = unit.color.content[0].id * 100;
+
+const indexIMG = ["first", "second", "third", "fourth"]
+---
+
+<a 
+data-id={unit._id}
+data-num={unit.num}
+data-name={unit.name.count > 1 ? unit.name.content : unit.name.content.join(",") }
+data-color={unit.color.content.map((color) => color.id).join(",")}
+data-tag={unit.tags.content.map((tag) => tag.id).join(",")}
+data-chapter={unit.chapter.id}
+data-rarity={unit.rarity.id}
+data-type={unit.type.id}
+data-tagswitch={unit.tagswitch}
+data-zenkai={unit.zenkai}
+data-transform={unit.transform}
+
+class="unit-card-a"
+
+href=`/${lang}/unit/${unit.num}` 
+href-lang={lang}>
+	<article style={`background-color: var(--color-${color_bg});`} data-count={unit.states || 1}>
+    {unit.lf && <img class="unit-card lf" src="https://jittery-rachele-api-dev-da79d1e5.koyeb.app/api/v1/assets/props/LL.webp" />}
+    <img class="unit-card rarity" src={`https://jittery-rachele-api-dev-da79d1e5.koyeb.app/api/v1/assets/rarity/${unit.rarity.name.slice(0, 2)}.webp`} />
+    {
+        Array.from({ length: unit.states || 1 }, (_, i) => i + 1).map((state, i) => {
+            return (
+                <img 
+                class=`unit-card card-bchaico ${indexIMG[i] || ""}` 
+                src=`${API_BCHAICO}${unit.num}${state > 1 ? state : ""}.webp` 
+                alt={`image of ${unit._id}`} />
+            )
+        })
+    }
+{unit.color && (
+  (() => {
+    const seenIds = new Set();
+    const uniqueColorsInOrder = [];
+
+    for (const color of unit.color.content) {
+      if (!seenIds.has(color.id)) {
+        uniqueColorsInOrder.push(color);
+        seenIds.add(color.id);
+      }
+    }
+
+    return uniqueColorsInOrder.map((color, i) => {
+      let positionClass = "";
+      if (i === 0) positionClass = "first";
+      else if (i === 1) positionClass = "second";
+
+      return (
+        <img
+          class={`unit-card color-banner ${indexIMG[i] || ""} ${positionClass}`}
+          src={`${API_COLOR_BANNER}COLOR_${color.id}.webp`}
+          alt={`image of ${unit._id} banner`}
+        />
+      );
+    });
+  })()
+)}
+
+
+
+	</article>
+</a>
+
+<style>
+.unit-card-a {
+  text-decoration: none;
+  display: inline-block;
+  transition: transform 0.2s ease-in-out;
+  will-change: transform;
+
+  &:hover {
+    transform: scale(1.02);
+  }
+
+  &.filtered {
+    display: none;
+  }
+
+  article {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    width: 100%;
+    overflow: hidden;
+    border-radius: 0.75rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    --slot: 4.2s;
+    --count: 1;
+  }
+
+  img.unit-card.lf {
+    position: absolute;
+    top: 0;
+    width: 100%;
+    transform: scale(.98);
+  }
+
+  img.unit-card.rarity {
+    position: absolute;
+    bottom: 0;
+    left: -4px;
+    z-index: 6;
+  }
+
+  img.unit-card.color-banner {
+    
+    &.first {
+      animation-name: bchaico-slotfade-2;
+      animation-delay: 0s;
+    }
+    
+    &:not(.first) {
+      animation-name: bchaico-slotfade-2;
+      animation-duration: calc(2* var(--slot));
+      animation-iteration-count: infinite;
+      animation-timing-function: linear;
+      animation-fill-mode: both;
+      animation-delay: 4.2s;
+    }
+  }
+
+  img.unit-card.card-bchaico {
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 3;
+
+    backface-visibility: hidden;
+    transform: translateZ(0);
+
+    opacity: 0;
+
+    
+    animation-duration: calc(var(--count) * var(--slot));
+    animation-iteration-count: infinite;
+    animation-timing-function: linear;
+    animation-fill-mode: both;
+
+    &:not(.first) {
+      position: absolute;
+    }
+
+    &.first {
+      animation-delay: 0s;
+    }
+
+    &.second {
+      animation-delay: calc(1 * var(--slot));
+    }
+
+    &.third {
+      animation-delay: calc(2 * var(--slot));
+    }
+
+    &.fourth {
+      animation-delay: calc(3 * var(--slot));
+    }
+  }
+
+  article[data-count="1"] {
+    --count: 1;
+
+    img.unit-card.card-bchaico {
+      animation: none !important;
+      opacity: 1 !important;
+      position: relative;
+    }
+
+    img.unit-card.color-banner {
+      animation: none !important;
+      opacity: 1 !important;
+    }
+  }
+
+  article[data-count="2"] {
+    --count: 2;
+
+    img.unit-card.card-bchaico {
+      animation-name: bchaico-slotfade-2;
+    }
+  }
+
+  article[data-count="3"] {
+    --count: 3;
+
+    img.unit-card.card-bchaico {
+      animation-name: bchaico-slotfade-3;
+    }
+  }
+
+  article[data-count="4"] {
+    --count: 4;
+
+    img.unit-card.card-bchaico {
+      animation-name: bchaico-slotfade-4;
+    }
+  }
+
+  img.color-banner {
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    object-fit: contain;
+    transform: scale(1.04);
+    pointer-events: none;
+    z-index: 3;
+  }
+}
+
+@keyframes bchaico-slotfade-2 {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  35% { opacity: 1; }
+  55% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes bchaico-slotfade-3 {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  20% { opacity: 1; }
+  45% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes bchaico-slotfade-4 {
+  0% { opacity: 0; }
+  10% { opacity: 1; }
+  22% { opacity: 1; }
+  38% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+</style>

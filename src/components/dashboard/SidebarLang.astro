@@ -1,0 +1,91 @@
+---
+import { languages } from "../../utils/i18n";
+import type { Lang } from "../../types/lang.types";
+
+const { lang } = Astro.params;
+const currentLang = lang as Lang || "es";
+---
+
+<div class="sidebar-lang">
+    <label for="lang-select" class="section-label">Language</label>
+    <div class="select-wrapper">
+        <select id="lang-select" class="lang-dropdown">
+            {
+                languages.map((l) => (
+                    <option value={l.code} selected={currentLang === l.code}>
+                        {l.flag} {l.name}
+                    </option>
+                ))
+            }
+        </select>
+        <svg class="select-icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+    </div>
+</div>
+
+<script>
+    const select = document.getElementById("lang-select") as HTMLSelectElement;
+    if (select) {
+        select.addEventListener("change", () => {
+            const newLang = select.value;
+            const currentPath = window.location.pathname;
+            const segments = currentPath.split('/');
+            // segments[0] is empty, segments[1] is the lang
+            segments[1] = newLang;
+            const newPath = segments.join('/') + window.location.search;
+            
+            localStorage.setItem("preferred_lang", newLang);
+            document.cookie = `preferred_lang=${newLang}; path=/; max-age=31536000`;
+            window.location.href = newPath;
+        });
+    }
+</script>
+
+<style>
+    .sidebar-lang {
+        padding: 1rem 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .section-label {
+        font-size: 0.7rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #555;
+        font-weight: 700;
+        cursor: pointer;
+    }
+
+    .select-wrapper {
+        position: relative;
+        width: 100%;
+    }
+
+    .lang-dropdown {
+        width: 100%;
+        appearance: none;
+        background: #0a0a0a;
+        border: 1px solid #222;
+        color: #eee;
+        padding: 0.5rem 0.75rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: border-color 0.2s;
+    }
+
+    .lang-dropdown:hover {
+        border-color: #333;
+    }
+
+    .select-icon {
+        position: absolute;
+        right: 0.75rem;
+        top: 50%;
+        transform: translateY(-50%);
+        pointer-events: none;
+        color: #555;
+    }
+</style>

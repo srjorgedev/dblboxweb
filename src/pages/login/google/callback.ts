@@ -12,7 +12,6 @@ export async function GET(context: APIContext) {
     const storedState = context.cookies.get("google_oauth_state")?.value;
     const storedCodeVerifier = context.cookies.get("google_code_verifier")?.value;
 
-    // --- DEBUG LOGS (Bórralos cuando funcione) ---
     console.log("--- GOOGLE CALLBACK DEBUG ---");
     console.log({ code: !!code, state, storedState, storedCodeVerifier });
 
@@ -25,13 +24,11 @@ export async function GET(context: APIContext) {
         const tokens = await google.validateAuthorizationCode(code, storedCodeVerifier);
         console.log("✅ Tokens obtenidos correctamente");
 
-        // ... RESTO DE TU CÓDIGO (fetch user, loginOrRegister, etc.) ...
         const googleUserResponse = await fetch("https://openidconnect.googleapis.com/v1/userinfo", {
             headers: { Authorization: `Bearer ${tokens.accessToken()}` }
         });
         const googleUser = await googleUserResponse.json();
 
-        // ... lógica de sesión ...
         const currentSessionId = context.cookies.get("session_id")?.value;
         let currentUserId = undefined;
 

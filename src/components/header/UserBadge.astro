@@ -3,8 +3,6 @@ import type { Lang } from "../../types/lang.types";
 
 const user = Astro.locals.user;
 
-console.log(user);
-
 interface Props {
     lang: Lang;
 }
@@ -19,7 +17,6 @@ const { lang } = Astro.props;
                 <img referrerpolicy="no-referrer" src={user.avatar} alt="User Avatar" class="user-avatar" />
             </div>
             <div class="user-controls">
-                <a href="/profile">Perfil</a>
                 <form action="/api/logout" method="POST">
                     <button type="submit" class="control-item logout-btn">
                         Salir
@@ -76,12 +73,12 @@ const { lang } = Astro.props;
             margin-top: 0.5rem;
 
             width: max-content;
-            min-width: 120px;
+            min-width: 140px;
 
-            background: white;
-            border: 1px solid #ccc;
+            background: #1e1e1e;
+            border: 1px solid #333;
             border-radius: 8px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
             overflow: hidden;
             z-index: 100;
 
@@ -95,17 +92,17 @@ const { lang } = Astro.props;
                 display: block;
                 width: 100%;
                 text-decoration: none;
-                font-size: 1.125rem;
-                padding: 0.5rem 1rem;
+                font-size: 1rem;
+                padding: 0.75rem 1rem;
                 text-align: left;
                 background: none;
                 border: none;
                 cursor: pointer;
-                color: #333;
+                color: #e0e0e0;
                 transition: background 0.2s;
 
                 &:hover {
-                    background-color: #f3f4f6;
+                    background-color: #2a2a2a;
                 }
             }
 

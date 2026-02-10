@@ -1,0 +1,451 @@
+---
+import DashLayout from "../../../../layouts/DashLayout.astro";
+import { getUnit } from "../../../../hooks/getUnit";
+import { isValidLang } from "../../../../utils/i18n";
+
+const { lang, id } = Astro.params;
+
+if (!isValidLang(lang)) {
+    return new Response(null, { status: 404, statusText: "Invalid language" });
+}
+
+if (!id) {
+    return new Response(null, { status: 404, statusText: "Unit ID required" });
+}
+
+let unit;
+try {
+    unit = await getUnit(lang, id);
+} catch (e) {
+    return new Response(null, { status: 404, statusText: "Unit not found" });
+}
+---
+
+<DashLayout>
+    <div class="unit-edit-page">
+        <header class="page-header">
+            <div class="header-left">
+                <a href={`/${lang}/dashboard`} class="btn-back" aria-label="Back to Dashboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+                    <span>Back</span>
+                </a>
+                <div class="unit-title">
+                    <h1>{unit.name.content[0]}</h1>
+                    <code class="unit-id">{unit._id}</code>
+                </div>
+            </div>
+            <div class="header-actions">
+                <button type="button" class="btn btn-secondary" disabled>Discard</button>
+                <button type="submit" form="edit-unit-form" class="btn btn-primary" disabled>Save Changes</button>
+            </div>
+        </header>
+
+        <form id="edit-unit-form" class="edit-grid">
+            <!-- Left Column: Primary Data -->
+            <div class="column-primary">
+                <section class="panel">
+                    <header class="panel-header">
+                        <h2>General Info</h2>
+                    </header>
+                    <div class="panel-body">
+                        <div class="form-row">
+                            <div class="form-control">
+                                <label for="num">Internal Number</label>
+                                <input type="number" id="num" name="num" value={unit.num} class="input-dark" />
+                            </div>
+                            <div class="form-control">
+                                <label for="states">States</label>
+                                <input type="number" id="states" name="states" value={unit.states} class="input-dark" />
+                            </div>
+                        </div>
+                        <div class="form-control">
+                            <label>Type</label>
+                            <input type="text" value={unit.type.name} disabled class="input-dark input-disabled" />
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <header class="panel-header">
+                        <h2>Unit Names</h2>
+                    </header>
+                    <div class="panel-body">
+                        {unit.name.content.map((n, i) => (
+                            <div class="form-control">
+                                <label for={`name-${i}`}>Variant {i + 1}</label>
+                                <input type="text" id={`name-${i}`} name={`name-${i}`} value={n} class="input-dark" />
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            </div>
+
+            <!-- Right Column: Meta & Capabilities -->
+            <div class="column-secondary">
+                <section class="panel">
+                    <header class="panel-header">
+                        <h2>Attributes</h2>
+                    </header>
+                    <div class="panel-body">
+                        <div class="form-row">
+                            <div class="form-control">
+                                <label>Rarity</label>
+                                <input type="text" value={unit.rarity.name} disabled class="input-dark input-disabled" />
+                            </div>
+                            <div class="form-control">
+                                <label>Chapter</label>
+                                <input type="text" value={unit.chapter.name} disabled class="input-dark input-disabled" />
+                            </div>
+                        </div>
+
+                        <div class="meta-group">
+                            <span class="meta-label">Colors</span>
+                            <div class="chip-list">
+                                {unit.color.content.map((c) => (
+                                    <span class={`chip chip-color-${c.id}`}>{c.name}</span>
+                                ))}
+                            </div>
+                        </div>
+
+                        <div class="meta-group">
+                            <span class="meta-label">Tags</span>
+                            <div class="chip-list chip-list-scroll">
+                                {unit.tags.content.map((t) => (
+                                    <span class="chip chip-tag">{t.name}</span>
+                                ))}
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="panel">
+                    <header class="panel-header">
+                        <h2>Capabilities</h2>
+                    </header>
+                    <div class="panel-body">
+                        <div class="checkbox-list">
+                            <label class="checkbox-card">
+                                <input type="checkbox" name="transform" checked={unit.transform} />
+                                <div class="cb-content">
+                                    <span class="cb-title">Transform</span>
+                                    <span class="cb-desc">Can change form in battle</span>
+                                </div>
+                            </label>
+                            <label class="checkbox-card">
+                                <input type="checkbox" name="lf" checked={unit.lf} />
+                                <div class="cb-content">
+                                    <span class="cb-title">Legends Limited</span>
+                                    <span class="cb-desc">Has Legendary Finish</span>
+                                </div>
+                            </label>
+                            <label class="checkbox-card">
+                                <input type="checkbox" name="zenkai" checked={unit.zenkai} />
+                                <div class="cb-content">
+                                    <span class="cb-title">Zenkai Awakened</span>
+                                    <span class="cb-desc">Eligible for Zenkai</span>
+                                </div>
+                            </label>
+                             <label class="checkbox-card">
+                                <input type="checkbox" name="tagswitch" checked={unit.tagswitch} />
+                                <div class="cb-content">
+                                    <span class="cb-title">Tag Switch</span>
+                                    <span class="cb-desc">Duo unit mechanic</span>
+                                </div>
+                            </label>
+                             <label class="checkbox-card">
+                                <input type="checkbox" name="fusion" checked={unit.fusion} />
+                                <div class="cb-content">
+                                    <span class="cb-title">Fusion</span>
+                                    <span class="cb-desc">Fusion warrior mechanic</span>
+                                </div>
+                            </label>
+                        </div>
+                    </div>
+                </section>
+            </div>
+        </form>
+    </div>
+</DashLayout>
+
+<style is:global>
+    /* Scope everything to .unit-edit-page to prevent leaks but ensure application */
+    .unit-edit-page {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+        color: #e0e0e0;
+    }
+
+    /* Header */
+    .unit-edit-page .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2.5rem;
+        border-bottom: 1px solid #333;
+        padding-bottom: 1.5rem;
+    }
+
+    .unit-edit-page .header-left {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+    }
+
+    .unit-edit-page .btn-back {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #888;
+        font-weight: 500;
+        font-size: 0.9rem;
+        transition: color 0.2s;
+    }
+
+    .unit-edit-page .btn-back:hover {
+        color: #fff;
+    }
+
+    .unit-edit-page .unit-title h1 {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #fff;
+        line-height: 1.2;
+    }
+
+    .unit-edit-page .unit-id {
+        font-family: 'Consolas', monospace;
+        font-size: 0.75rem;
+        color: #666;
+        background: #111;
+        padding: 0.2rem 0.4rem;
+        border-radius: 4px;
+        border: 1px solid #222;
+    }
+
+    /* Buttons */
+    .unit-edit-page .header-actions {
+        display: flex;
+        gap: 1rem;
+    }
+
+    .unit-edit-page .btn {
+        padding: 0.6rem 1.2rem;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.9rem;
+        cursor: pointer;
+        border: 1px solid transparent;
+        transition: all 0.2s;
+    }
+
+    .unit-edit-page .btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .unit-edit-page .btn-primary {
+        background-color: #3b82f6;
+        color: white;
+    }
+    .unit-edit-page .btn-primary:hover:not(:disabled) {
+        background-color: #2563eb;
+    }
+
+    .unit-edit-page .btn-secondary {
+        background-color: transparent;
+        border-color: #444;
+        color: #ccc;
+    }
+    .unit-edit-page .btn-secondary:hover:not(:disabled) {
+        border-color: #666;
+        color: #fff;
+    }
+
+    /* Grid Layout */
+    .unit-edit-page .edit-grid {
+        display: grid;
+        grid-template-columns: 3fr 2fr; /* Asymmetric grid */
+        gap: 2rem;
+        align-items: start;
+    }
+
+    @media (max-width: 960px) {
+        .unit-edit-page .edit-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .unit-edit-page .column-primary,
+    .unit-edit-page .column-secondary {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    /* Panels/Cards */
+    .unit-edit-page .panel {
+        background: #1e1e1e;
+        border: 1px solid #333;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .unit-edit-page .panel-header {
+        padding: 1rem 1.5rem;
+        border-bottom: 1px solid #333;
+        background: #252525;
+    }
+
+    .unit-edit-page .panel-header h2 {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #fff;
+        margin: 0;
+    }
+
+    .unit-edit-page .panel-body {
+        padding: 1.5rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    /* Form Controls */
+    .unit-edit-page .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .unit-edit-page .form-control {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .unit-edit-page label {
+        font-size: 0.85rem;
+        color: #aaa;
+        font-weight: 500;
+    }
+
+    .unit-edit-page .input-dark {
+        background: #121212;
+        border: 1px solid #444;
+        color: #fff;
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        transition: border-color 0.2s;
+    }
+
+    .unit-edit-page .input-dark:focus {
+        border-color: #3b82f6;
+        outline: none;
+    }
+
+    .unit-edit-page .input-disabled {
+        background: #1a1a1a;
+        color: #666;
+        border-color: #2a2a2a;
+        cursor: default;
+    }
+
+    /* Chips/Tags */
+    .unit-edit-page .meta-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .unit-edit-page .meta-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: #666;
+        font-weight: 700;
+    }
+
+    .unit-edit-page .chip-list {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+    
+    .unit-edit-page .chip-list-scroll {
+        max-height: 150px;
+        overflow-y: auto;
+        padding-right: 5px;
+        /* Custom scrollbar for webkit */
+        scrollbar-width: thin;
+        scrollbar-color: #444 #222;
+    }
+
+    .unit-edit-page .chip {
+        font-size: 0.8rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 4px;
+        font-weight: 500;
+    }
+
+    .unit-edit-page .chip-tag {
+        background: #2a2a2a;
+        color: #ccc;
+        border: 1px solid #333;
+    }
+
+    .unit-edit-page .chip-color-1 { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+    .unit-edit-page .chip-color-2 { background: rgba(245, 158, 11, 0.2); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.3); }
+    .unit-edit-page .chip-color-3 { background: rgba(168, 85, 247, 0.2); color: #d8b4fe; border: 1px solid rgba(168, 85, 247, 0.3); }
+    .unit-edit-page .chip-color-4 { background: rgba(34, 197, 94, 0.2); color: #86efac; border: 1px solid rgba(34, 197, 94, 0.3); }
+    .unit-edit-page .chip-color-5 { background: rgba(59, 130, 246, 0.2); color: #93c5fd; border: 1px solid rgba(59, 130, 246, 0.3); }
+
+
+    /* Checkbox Cards */
+    .unit-edit-page .checkbox-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .unit-edit-page .checkbox-card {
+        display: flex;
+        align-items: flex-start; /* Top align for better reading */
+        gap: 1rem;
+        padding: 0.75rem;
+        background: #121212;
+        border: 1px solid #333;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+
+    .unit-edit-page .checkbox-card:hover {
+        background: #1a1a1a;
+        border-color: #555;
+    }
+
+    .unit-edit-page .checkbox-card input[type="checkbox"] {
+        margin-top: 0.25rem;
+        width: 1.1rem;
+        height: 1.1rem;
+        accent-color: #3b82f6;
+    }
+
+    .unit-edit-page .cb-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .unit-edit-page .cb-title {
+        font-weight: 600;
+        color: #eee;
+        font-size: 0.95rem;
+    }
+
+    .unit-edit-page .cb-desc {
+        font-size: 0.8rem;
+        color: #777;
+    }
+</style>

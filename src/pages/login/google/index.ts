@@ -6,13 +6,13 @@ export const GET: APIRoute = async ({ cookies, redirect }) => {
     const state = generateState();
     const codeVerifier = generateCodeVerifier(); 
 
-    const url = await google.createAuthorizationURL(state, codeVerifier, ["profile", "email"]);
+    const url = google.createAuthorizationURL(state, codeVerifier, ["profile", "email"]);
 
     cookies.set("google_oauth_state", state, {
         path: "/",
         secure: import.meta.env.PROD,
         httpOnly: true,
-        maxAge: 60 * 10, // 10 minutos
+        maxAge: 60 * 10, 
         sameSite: "lax"
     });
 

@@ -20,6 +20,24 @@ export const onRequest = defineMiddleware(async (context, next) => {
         context.locals.session = null;
     }
 
+    const url = new URL(context.request.url);
+    const pathname = url.pathname;
+    
+    const dashboardMatch = pathname.match(/^\/([a-z]{2})\/dashboard(\/.*)?$/);
+    
+    if (dashboardMatch) {
+        const lang = dashboardMatch[1];
+        const user = context.locals.user;
+
+        if (!user) {
+            return context.redirect(`/${lang}/login`);
+        }
+
+        if (user.role !== "user") {
+            return new Response("Unauthorized: Admin role required", { status: 403 });
+        }
+    }
+
     const response = await next();
 
     if (response.status === 404) {

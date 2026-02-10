@@ -1,16 +1,16 @@
-import type { UnitsResponse } from "../types/unit.types";
+import type { UnitsResponse, SortOption } from "../types/unit.types";
 
-const API_URL: string = import.meta.env.API_URL;
-const API_CURRENT_VERSION: string = import.meta.env.API_CURRENT_VERSION;
+const PUBLIC_API_URL: string = import.meta.env.PUBLIC_API_URL;
+const PUBLIC_API_CURRENT_VERSION: string = import.meta.env.PUBLIC_API_CURRENT_VERSION;
 
-export async function getAllUnits(lang: string): Promise<UnitsResponse> {
-
-    const url = new URL(`${API_URL}${API_CURRENT_VERSION}/unit/all`);
+export async function getAllUnits(lang: string, sort = "history", page: number = 1, limit: number = 1000): Promise<UnitsResponse> {
+    const url = new URL(`${PUBLIC_API_URL}${PUBLIC_API_CURRENT_VERSION}/unit/all`);
     url.searchParams.append("lang", lang);
-    // url.searchParams.append("limit", "10");
-    // url.searchParams.append("page", "1");
-    
-    console.log(url.toString())
+    url.searchParams.append("limit", limit.toString());
+    url.searchParams.append("page", page.toString());
+    url.searchParams.append("order", sort)
+
+    console.log(url)
 
     const response = await fetch(url.toString());
 

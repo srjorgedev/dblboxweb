@@ -1,11 +1,10 @@
 import type { UnitData } from "../types/unit.types";
 
-const API_URL: string = import.meta.env.API_URL;
-const API_CURRENT_VERSION: string = import.meta.env.API_CURRENT_VERSION;
+const PUBLIC_API_URL: string = import.meta.env.PUBLIC_API_URL;
+const PUBLIC_API_CURRENT_VERSION: string = import.meta.env.PUBLIC_API_CURRENT_VERSION;
 
 export async function getUnit(lang: string, id: string): Promise<UnitData> {
-    const url = `${API_URL}${API_CURRENT_VERSION}/unit/${id}?lang=${lang}`;
-    console.log({url})
+    const url = `${PUBLIC_API_URL}${PUBLIC_API_CURRENT_VERSION}/unit/${id}?lang=${lang}`;
 
     const response = await fetch(url);
     if (!response.ok) {

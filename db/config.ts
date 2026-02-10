@@ -5,6 +5,7 @@ const User = defineTable({
     id: column.text({ primaryKey: true }),
     username: column.text(),
     avatar: column.text({ optional: true }),
+    role: column.text({ default: "user" }),
   }
 });
 
@@ -28,5 +29,5 @@ const Session = defineTable({
 
 // https://astro.build/db/config
 export default defineDb({
-  tables: {User, Account, Session}
+  tables: { User, Account, Session }
 });

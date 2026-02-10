@@ -1,3 +1,16 @@
 ---
-return Astro.redirect("/es/");
+import { getValidSort } from "../utils/sort";
+
+const url = new URL(Astro.request.url);
+
+const defaultLang = "es";
+
+url.pathname = `/${defaultLang}`;
+
+const sort = url.searchParams.get("sort");
+const validSort = getValidSort(sort);
+
+url.searchParams.set("sort", validSort);
+
+return Astro.redirect(url.toString());
 ---

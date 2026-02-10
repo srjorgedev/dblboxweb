@@ -35,7 +35,7 @@ The project is configured for Server-Side Rendering (SSR) and deployment on **Ve
 ## Key Files & Modules
 
 ### Data Fetching
-*   **`src/api/getAllUnitSummary.ts`**: Contains `getAllUnits(lang)`. Fetches data from `${API_URL}${API_CURRENT_VERSION}/unit/all`.
+*   **`src/api/getAllUnitSummary.ts`**: Contains `getAllUnits(lang)`. Fetches data from `${PUBLIC_API_URL}${PUBLIC_API_CURRENT_VERSION}/unit/all`.
 
 ### Pages
 *   **`src/pages/[lang]/index.astro`**: The main page rendering the unit gallery. It currently fetches data server-side and maps over it to display images.
@@ -69,8 +69,8 @@ npm run build
 
 ## Environment Variables
 The application relies on the following environment variables (accessed via `import.meta.env`):
-*   `API_URL`: Base URL for the data API.
-*   `API_CURRENT_VERSION`: API version string.
+*   `PUBLIC_API_URL`: Base URL for the data API.
+*   `PUBLIC_API_CURRENT_VERSION`: API version string.
 *   `API_BCHAICO`: Base URL for serving unit images (webps).
 
 ## Development Conventions

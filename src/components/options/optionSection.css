@@ -1,10 +1,12 @@
-section {
+section.option-section,
+section.tiermaker-options {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
     padding: 1rem;
     position: relative;
     z-index: 20;
+    margin: 1rem 0 0.5rem 0;
 
     & header {
         & h2 {
@@ -43,18 +45,17 @@ section {
                         }
                     }
 
-                    & :global(svg) {
-                        fill: #111 !important;
+                    & svg {
+                        stroke: #111 !important;
                     }
                 }
 
-                /* Normal grey hover ONLY when empty */
                 &:hover div.pill:not(.has-content) {
                     background-color: var(--color-7);
                     color: #111;
 
-                    & :global(svg) {
-                        fill: #111;
+                    & svg {
+                        stroke: #111;
                     }
                 }
             }
@@ -80,13 +81,13 @@ section {
                 & span {
                     font-size: 1rem;
                     font-weight: 600;
-                    margin-right: 0.5rem;
+					margin-right: 0.25rem;
                 }
 
-                & :global(svg) {
-                    fill: #333;
+                & svg {
+                    stroke: #333;
 
-                    & :global(path) {
+                    & path {
                         transition: transform 180ms ease;
                         transform-origin: center;
                     }
@@ -106,12 +107,16 @@ section {
                     line-height: 1;
 
                     &:-webkit-autofill,
-                    &:-webkit-autofill:hover,
-                    &:-webkit-autofill:focus,
-                    &:-webkit-autofill:active {
+                    &:-webkit-autostroke:hover,
+                    &:-webkit-autostroke:focus,
+                    &:-webkit-autostroke:active {
                         -webkit-box-shadow: 0 0 0 30px var(--color-6) inset !important;
                         -webkit-text-fill-color: #333 !important;
                         transition: background-color 5000s ease-in-out 0s;
+                    }
+
+                    &::placeholder {
+                        color: #333;
                     }
 
                     &::selection {
@@ -136,34 +141,29 @@ section {
                     }
                 }
 
-                &:not(.search-pill *) {
-                    &:hover {
-                        background-color: var(--color-7);
-                        color: #111;
+                &:hover {
+                    & svg {
+                        & .arrow-down {
+                            transform: translateY(3px);
+                        }
 
-                        & :global(svg) {
-                            & :global(.arrow-down) {
-                                transform: translateY(3px);
-                            }
+                        & .arrow-up {
+                            transform: translateY(-3px);
+                        }
 
-                            & :global(.arrow-up) {
-                                transform: translateY(-3px);
-                            }
+                        & .line-1 {
+                            transform: translateY(1.5px);
+                            transition-delay: 0ms;
+                        }
 
-                            & :global(.line-1) {
-                                transform: translateY(1.5px);
-                                transition-delay: 0ms;
-                            }
+                        & .line-2 {
+                            transform: translateY(1.5px);
+                            transition-delay: 40ms;
+                        }
 
-                            & :global(.line-2) {
-                                transform: translateY(1.5px);
-                                transition-delay: 40ms;
-                            }
-
-                            & :global(.line-3) {
-                                transform: translateY(1px);
-                                transition-delay: 80ms;
-                            }
+                        & .line-3 {
+                            transform: translateY(1px);
+                            transition-delay: 80ms;
                         }
                     }
                 }
@@ -174,14 +174,19 @@ section {
                 background-color: var(--color-highlight);
                 color: #111;
 
-                & :global(svg) {
-                    fill: #111;
+                & svg {
+                    stroke: #111;
                 }
             }
 
             &:not(.active, .option-search):hover div.pill,
             &:not(.active, .option-search):hover button.pill-button {
-                background-color: var(--color-7);
+                background-color: var(--color-7) !important;
+                color: #111;
+
+                & svg {
+                    stroke: #111;
+                }
             }
 
             & div.summary {
@@ -235,7 +240,7 @@ section {
                     &:hover {
                         background-color: var(--color-7);
 
-                        & :global(svg) {
+                        & svg {
                             transform: rotate(360deg);
                         }
                     }
@@ -244,7 +249,7 @@ section {
                         transform: scale(0.98);
                     }
 
-                    & :global(svg) {
+                    & svg {
                         transition: transform 0.333s ease;
                         width: 1.25rem;
                         height: 1.25rem;
@@ -253,13 +258,15 @@ section {
             }
         }
 
-        & article.option-order {
+        & article.option-order,
+        & article.option-view {
             & div.summary {
                 padding: 0 !important;
                 gap: 0;
                 min-width: 180px;
 
-                & .order-button {
+                & .order-button,
+                & .view-button {
                     width: 100%;
                     background: transparent;
                     border: none;

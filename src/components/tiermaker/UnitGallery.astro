@@ -38,8 +38,8 @@ const { units, apiBchaico } = Astro.props;
                         <img
                             src={`${apiBchaico}${unit.num}.webp`}
                             alt={`image of ${unit._id}`}
-                            loading="lazy"
                             draggable="false"
+                            crossorigin="anonymous"
                         />
                     </a>
                 );

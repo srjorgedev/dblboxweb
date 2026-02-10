@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
 import html2canvas from 'html2canvas';
 
-export const SaveTierButton: React.FC = () => {
+type SaveTierButtonProps = {
+    children?: React.ReactNode;
+};
+
+export const SaveTierButton: React.FC = ({ children }: SaveTierButtonProps) => {
     const [isLoading, setIsLoading] = useState(false);
 
     const handleSave = async () => {
@@ -9,12 +13,13 @@ export const SaveTierButton: React.FC = () => {
         if (!tiersContainer) return;
 
         setIsLoading(true);
-        await new Promise(resolve => setTimeout(resolve, 150));
+        await new Promise(resolve => setTimeout(resolve, 500));
 
         try {
             const canvas = await html2canvas(tiersContainer, {
                 backgroundColor: '#1a1b25',
                 useCORS: true,
+                allowTaint: false,
                 scale: 2,
                 logging: false,
                 onclone: (clonedDoc) => {
@@ -24,7 +29,7 @@ export const SaveTierButton: React.FC = () => {
                         clonedContainer.style.overflow = 'hidden';
                         clonedContainer.style.width = `${tiersContainer.offsetWidth}px`;
                     }
-                    
+
                     const style = clonedDoc.createElement('style');
                     style.innerHTML = `
                         * { 
@@ -32,10 +37,16 @@ export const SaveTierButton: React.FC = () => {
                             animation: none !important; 
                         }
                         .unit-card {
-                            display: block !important;
+                            display: inline-block !important;
                             opacity: 1 !important;
                             visibility: visible !important;
                             transform: none !important;
+                        }
+                        .unit-card img {
+                            display: block !important;
+                            opacity: 1 !important;
+                            visibility: visible !important;
+                            content-visibility: visible !important;
                         }
                     `;
                     clonedDoc.head.appendChild(style);
@@ -55,15 +66,15 @@ export const SaveTierButton: React.FC = () => {
     };
 
     return (
-        <button 
+        <button
             className={`pill-button ${isLoading ? 'active' : ''}`}
-            onClick={handleSave} 
+            onClick={handleSave}
             disabled={isLoading}
             style={isLoading ? { opacity: 0.7, pointerEvents: 'none' } : {}}
             title={isLoading ? "Procesando imagen..." : "Guardar Tier List como PNG"}
         >
-            <span>{isLoading ? '⌛' : '📷'}</span>
-            <span>{isLoading ? 'Procesando...' : 'Guardar'}</span>
+            {isLoading ? null : children }
+            <span>{isLoading ? 'Procesando...' : 'Guardar imagen'}</span>
         </button>
     );
 };

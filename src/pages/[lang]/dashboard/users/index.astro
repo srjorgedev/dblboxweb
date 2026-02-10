@@ -1,0 +1,54 @@
+---
+import { db, User } from "astro:db";
+import DashLayout from "@/layouts/DashLayout.astro";
+import UsersTable from "@/components/dashboard/UsersTable";
+import { isValidLang } from "@/utils/i18n";
+
+const { lang } = Astro.params;
+
+if (!isValidLang(lang)) {
+    return new Response(null, { status: 404, statusText: "Invalid language" });
+}
+
+// Fetch all users from Astro DB
+const users = await db.select().from(User);
+---
+
+<DashLayout>
+    <div class="users-dashboard">
+        <header class="section-header">
+            <div class="title-area">
+                <h1>User Management</h1>
+                <p>Manage application users and their permissions.</p>
+            </div>
+        </header>
+
+        <section class="users-section">
+            <UsersTable client:load initialUsers={users} />
+        </section>
+    </div>
+</DashLayout>
+
+<style is:global>
+    .users-dashboard {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .section-header {
+        margin-bottom: 2rem;
+    }
+
+    .section-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #fff;
+        margin-bottom: 0.5rem;
+    }
+
+    .section-header p {
+        color: #666;
+        font-size: 0.9rem;
+    }
+</style>

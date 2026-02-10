@@ -1,5 +1,5 @@
 export type UnitsResponse = {
-    readonly meta: Meta;
+    readonly meta: PartialMeta;
     readonly data: UnitData[];
 }
 
@@ -35,8 +35,19 @@ export type Name = {
     readonly content: string[];
 }
 
+export type PartialMeta = Partial<Meta>;
+
 export type Meta = {
-    readonly total: number;
+    readonly total:       number;
+    readonly page:        number;
+    readonly limit:       number;
+    readonly totalPages:  number;
+    readonly nextPage:    number;
+    readonly prevPage:    null;
     readonly hasNextPage: boolean;
     readonly hasPrevPage: boolean;
 }
+
+
+export const VALID_SORT_OPTIONS = ["history", "rarity"] as const;
+export type SortOption = typeof VALID_SORT_OPTIONS[number];

@@ -1,0 +1,282 @@
+---
+import { isValidLang } from "@/utils/i18n";
+import DashLayout from "@/layouts/DashLayout.astro";
+import UnitsTable from "@/components/dashboard/UnitsTable";
+
+const { lang } = Astro.params;
+
+if (!isValidLang(lang)) {
+    return new Response(null, { status: 404, statusText: "Invalid language" });
+}
+
+const { user } = Astro.locals;
+---
+
+<DashLayout>
+    <div class="dashboard-container">
+        <header class="dash-header">
+            <h1>Dashboard</h1>
+            <p class="welcome">
+                Welcome back, <strong>{user.username}</strong>
+            </p>
+        </header>
+
+        <section class="actions-section">
+            <h3>Quick Actions</h3>
+            <div class="actions-grid">
+                <button class="action-card create-new" type="button">
+                    <span class="icon">+</span>
+                    <span>New Unit</span>
+                </button>
+                <button
+                    class="action-card"
+                    type="button"
+                    onclick="window.location.reload()"
+                >
+                    <span class="icon">↻</span>
+                    <span>Refresh Data</span>
+                </button>
+            </div>
+        </section>
+
+        <section class="units-section">
+            <h3>Units Database</h3>
+            <div class="table-wrapper">
+                <UnitsTable client:load lang={lang} />
+            </div>
+        </section>
+    </div>
+</DashLayout>
+
+<style>
+    .dashboard-container {
+        padding: 2rem;
+
+        max-width: 1400px;
+
+        margin: 0 auto;
+    }
+
+    .dash-header {
+        margin-bottom: 2.5rem;
+    }
+
+    .dash-header h1 {
+        font-size: 2rem;
+
+        margin-bottom: 0.5rem;
+
+        font-weight: 700;
+
+        color: #fff;
+    }
+
+    .welcome {
+        color: #aaa;
+    }
+
+    .actions-section {
+        margin-bottom: 3rem;
+    }
+
+    .actions-section h3,
+    .units-section h3 {
+        margin-bottom: 1.5rem;
+
+        font-size: 1.25rem;
+
+        color: #e0e0e0;
+
+        font-weight: 600;
+    }
+
+    .actions-grid {
+        display: flex;
+
+        gap: 1rem;
+
+        flex-wrap: wrap;
+    }
+
+    .action-card {
+        display: flex;
+
+        flex-direction: column;
+
+        align-items: center;
+
+        justify-content: center;
+
+        gap: 0.5rem;
+
+        padding: 1.5rem 2rem;
+
+        border: 1px solid #333;
+
+        border-radius: 8px;
+
+        background: #1e1e1e;
+
+        cursor: pointer;
+
+        transition: all 0.2s ease;
+
+        min-width: 140px;
+
+        color: #e0e0e0;
+    }
+
+    .action-card:hover {
+        transform: translateY(-2px);
+
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+        border-color: #555;
+    }
+
+    .action-card .icon {
+        font-size: 1.5rem;
+
+        font-weight: bold;
+    }
+
+    .table-wrapper {
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        overflow: visible;
+    }
+</style>
+
+<style is:global>
+    /* Table styles - Scoped to table-wrapper to prevent leaks but global for React component */
+
+    .table-wrapper table {
+        width: 100%;
+
+        border-collapse: collapse;
+
+        font-size: 0.95rem;
+    }
+
+    .table-wrapper thead th {
+        text-align: left;
+
+        padding: 0.5rem 0.75rem; /* Further reduced padding */
+
+        background-color: #000; /* Black header */
+
+        border-bottom: 2px solid #333;
+
+        color: #888;
+
+        font-weight: 600;
+
+        text-transform: uppercase;
+
+        font-size: 0.75rem;
+
+        letter-spacing: 0.05em;
+    }
+
+    .table-wrapper tbody tr {
+        transition: background-color 0.15s ease;
+
+        cursor: pointer;
+
+        border-bottom: 1px solid #222;
+
+        background-color: #161616; /* Dark row */
+    }
+
+    .table-wrapper tbody tr:nth-child(even) {
+        background-color: #1a1a1a; /* Alternating row */
+    }
+
+    .table-wrapper tbody tr:hover {
+        background-color: #252525 !important;
+    }
+
+    .table-wrapper tbody tr:last-child {
+        border-bottom: none;
+    }
+
+    .table-wrapper tbody td {
+        padding: 0.6rem 0.75rem; /* Balanced padding */
+
+        vertical-align: middle;
+
+        color: #ccc;
+    }
+
+    /* Column specific styles */
+
+    .table-wrapper td.name {
+        font-weight: 600;
+
+        color: #fff;
+    }
+
+    .unit-color {
+        display: inline-block;
+
+        padding: 4px 10px;
+
+        border-radius: 20px;
+
+        font-size: 0.75rem;
+
+        font-weight: 600;
+
+        margin-right: 6px;
+
+        background: #333;
+
+        color: #ccc;
+
+        text-transform: uppercase;
+    }
+
+    /* Mock color classes - adjusted for dark mode visibility */
+
+    .unit-color[data-color="1"] {
+        background: #3c1f1f;
+        color: #ff8a80;
+    } /* Red */
+
+    .unit-color[data-color="2"] {
+        background: #3e2723;
+        color: #ffcc80;
+    } /* Yellow */
+
+    .unit-color[data-color="3"] {
+        background: #311b92;
+        color: #ea80fc;
+    } /* Purple */
+
+    .unit-color[data-color="4"] {
+        background: #1b5e20;
+        color: #b9f6ca;
+    } /* Green */
+
+    .unit-color[data-color="5"] {
+        background: #0d47a1;
+        color: #82b1ff;
+    } /* Blue */
+
+    .table-wrapper td.tags span {
+        display: inline-block;
+
+        background: #333;
+
+        padding: 2px 6px;
+
+        border-radius: 4px;
+
+        font-size: 0.8rem;
+
+        margin-right: 4px;
+
+        color: #ccc;
+    }
+</style>

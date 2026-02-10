@@ -2,6 +2,9 @@
 import { getAllData } from "../../hooks/getData";
 import type { Lang } from "../../types/lang.types";
 
+import Add from "../svg/Add.astro";
+import Camera from "../svg/Camera.astro";
+
 import "../options/optionSection.css"
 
 import Filter from "../svg/Filter.astro";
@@ -29,16 +32,18 @@ const rarities = await getAllData("rarity", lang!);
     <main>
         <article class="option-pill">
             <button class="pill-button" id="add-tier-btn">
-                <span>+</span>
+                <Add />
                 <span>Añadir Fila</span>
             </button>
         </article>
         <article class="option-pill">
-            <SaveTierButton client:visible />
+            <SaveTierButton client:visible>
+                <Camera />
+            </SaveTierButton>
         </article>
         <article class="option-pill">
             <button class="pill-button" id="reset-tier-btn">
-                <span>✕</span>
+                <Reload />
                 <span>Reset</span>
             </button>
         </article>

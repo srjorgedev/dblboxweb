@@ -12,7 +12,6 @@ export async function loginOrRegister(
     currentUserId?: string // <-- Clave: Si viene esto, estamos VINCULANDO
 ) {
 
-    // 1. ¿Esta cuenta de social ya existe en nuestra DB?
     const existingAccount = await db.select()
         .from(Account)
         .where(and(
@@ -21,7 +20,6 @@ export async function loginOrRegister(
         ))
         .get();
 
-    // CASO A: La cuenta ya existe -> Login normal
     if (existingAccount) {
         return await createSession(existingAccount.userId);
     }

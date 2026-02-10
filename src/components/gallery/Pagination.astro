@@ -1,0 +1,88 @@
+---
+import type { PartialMeta } from "../../types/unit.types";
+
+interface Props {
+    meta: PartialMeta;
+    currentPage: number;
+}
+
+const { meta, currentPage } = Astro.props;
+const { hasNextPage, hasPrevPage } = meta;
+
+const url = new URL(Astro.request.url);
+const prevUrl = new URL(url);
+prevUrl.searchParams.set("page", (currentPage - 1).toString());
+
+const nextUrl = new URL(url);
+nextUrl.searchParams.set("page", (currentPage + 1).toString());
+---
+
+<nav class="pagination" aria-label="Pagination">
+    {
+        hasPrevPage ? (
+            <a href={prevUrl.toString()} class="pagination-link">
+                &larr; Prev
+            </a>
+        ) : (
+            <span class="pagination-link disabled">&larr; Prev</span>
+        )
+    }
+
+    <span class="current-page">{currentPage}</span>
+
+    {
+        hasNextPage ? (
+            <a href={nextUrl.toString()} class="pagination-link">
+                Next &rarr;
+            </a>
+        ) : (
+            <span class="pagination-link disabled">Next &rarr;</span>
+        )
+    }
+</nav>
+
+<style>
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 1rem;
+        margin: 2rem 0;
+        font-family: system-ui, sans-serif;
+    }
+
+    .pagination-link {
+        display: inline-flex;
+        align-items: center;
+        padding: 0.5rem 1rem;
+        background-color: #2a2a2a;
+        color: white;
+        text-decoration: none;
+        border-radius: 0.5rem;
+        transition: background-color 0.2s;
+        font-weight: 500;
+        border: 1px solid #3a3a3a;
+    }
+
+    .pagination-link:hover:not(.disabled) {
+        background-color: #4a4a4a;
+        border-color: #5a5a5a;
+    }
+
+    .pagination-link.disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        background-color: #1a1a1a;
+        color: #666;
+    }
+
+    .current-page {
+        font-size: 1.1rem;
+        font-weight: bold;
+        color: white;
+        padding: 0.5rem 1rem;
+        background: #1a1a1a;
+        border-radius: 0.5rem;
+        border: 1px solid #3a3a3a;
+    }
+</style>

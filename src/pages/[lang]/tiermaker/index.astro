@@ -5,16 +5,26 @@ import TierBoard from "../../../components/tiermaker/TierBoard.astro";
 import UnitGallery from "../../../components/tiermaker/UnitGallery.astro";
 import { getAllUnits } from "../../../hooks/getAllUnits";
 import { isValidLang } from "../../../utils/i18n";
+import { getValidSort } from "../../../utils/sort";
 import type { Lang } from "../../../types/lang.types";
 import type { UnitsResponse } from "../../../types/unit.types";
 
 const { lang } = Astro.params;
+const url = new URL(Astro.request.url);
 
 if (!isValidLang(lang)) {
 	return new Response(null, { status: 404, statusText: "Invalid language" });
 }
 
-const { data }: UnitsResponse = await getAllUnits(lang);
+const sort = url.searchParams.get("sort");
+const validSort = getValidSort(sort);
+
+if (sort !== validSort) {
+	url.searchParams.set("sort", validSort);
+	return Astro.redirect(url.toString());
+}
+
+const { data }: UnitsResponse = await getAllUnits(lang, sort);
 const apiBchaico = import.meta.env.PUBLIC_API_BCHAICO;
 ---
 

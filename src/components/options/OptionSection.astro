@@ -1,20 +1,29 @@
 ---
 import { getAllData } from "../../hooks/getData";
 import type { Lang } from "../../types/lang.types";
+import { getTranslations } from "../../utils/translations";
 
-import "../options/optionSection.css"
+import type { SortOption } from "../../types/unit.types";
+
+import "../options/optionSection.css";
 
 import Filter from "../svg/Filter.astro";
 import OrderV2 from "../svg/OrderV2.astro";
+import DragonRadar from "../svg/DragonRadar.astro";
 import Reload from "../svg/Reload.astro";
 import Select from "./Select.astro";
 import Search from "../svg/Search.astro";
+import See from "../svg/See.astro";
 
 interface Props {
     lang: Lang;
+    currentSort?: SortOption;
+    isPaginationActive?: boolean;
 }
 
-const { lang } = Astro.props;
+const { lang, currentSort, isPaginationActive } = Astro.props;
+
+const texts = getTranslations(lang);
 
 const tags = await getAllData("tag", lang!);
 const chapters = await getAllData("chapter", lang!);
@@ -23,9 +32,9 @@ const types = await getAllData("type", lang!);
 const rarities = await getAllData("rarity", lang!);
 ---
 
-<section class="opction-section">
+<section class="option-section">
     <header>
-        <h2>Opciones</h2>
+        <h2>{texts.optionsSection.title}</h2>
     </header>
     <main>
         <article class="option-pill option-filter">
@@ -34,34 +43,63 @@ const rarities = await getAllData("rarity", lang!);
                 <span class="option-pill-text option-filter-text">Filtros</span>
             </div>
             <div class="summary filter-summary animated-fade-up">
-                <Select data={tags} name="tag" label="Etiquetas" />
-                <Select data={chapters} name="chapter" label="Capítulos" />
-                <Select data={colors} name="color" label="Colores" />
-                <Select data={types} name="type" label="Tipos" />
-                <Select data={rarities} name="rarity" label="Rarezas" />
+                <Select data={tags} name="tag" label={texts.filterSection.tagLabel} />
+                <Select data={chapters} name="chapter" label={texts.filterSection.chapterLabel} />
+                <Select data={colors} name="color" label={texts.filterSection.colorLabel} />
+                <Select data={types} name="type" label={texts.filterSection.typeLabel} />
+                <Select data={rarities} name="rarity" label={texts.filterSection.rarityLabel} />
                 <button class="reset-filters-btn">
                     <Reload />
-                    Limpar filtros
+                    {texts.filterSection.clear}
                 </button>
             </div>
         </article>
         <article class="option-pill option-order">
             <div class="pill order-pill">
                 <OrderV2 />
-                <span class="option-pill-text option-order-text">Ordenar</span>
+                <span class="option-pill-text option-order-text">{texts.sortSection.title}</span>
             </div>
             <div class="summary order-summary animated-fade-up">
                 <input
                     type="button"
-                    class:list={["order-button"]}
+                    class:list={[
+                        "order-button",
+                        { active: currentSort === "history" },
+                    ]}
                     data-value="history"
-                    value="Historia"
+                    value={texts.sortSection.history}
                 />
                 <input
                     type="button"
-                    class:list={["order-button"]}
+                    class:list={[
+                        "order-button",
+                        { active: currentSort === "rarity" },
+                    ]}
                     data-value="rarity"
-                    value="Rareza"
+                    value={texts.sortSection.rarity}
+                />
+            </div>
+        </article>
+        <article class="option-pill option-view">
+            <div class="pill view-pill">
+                <See />
+                <span class="option-pill-text option-view-text">{texts.viewSection.title}</span>
+            </div>
+            <div class="summary view-summary animated-fade-up">
+                <input
+                    type="button"
+                    class:list={[
+                        "view-button",
+                        { active: !isPaginationActive },
+                    ]}
+                    data-value="all"
+                    value={texts.viewSection.all}
+                />
+                <input
+                    type="button"
+                    class:list={["view-button", { active: isPaginationActive }]}
+                    data-value="paged"
+                    value={texts.viewSection.pages}
                 />
             </div>
         </article>
@@ -72,7 +110,7 @@ const rarities = await getAllData("rarity", lang!);
                     type="search"
                     name="search"
                     class="search-input"
-                    placeholder="Buscar unidad..."
+                    placeholder={texts.search}
                     autocomplete="off"
                 />
             </div>
@@ -105,7 +143,7 @@ const rarities = await getAllData("rarity", lang!);
             const trigger = pill.querySelector(".pill");
             const summary = pill.querySelector(".summary");
 
-            if (pill.classList.contains('option-search')) return;
+            if (pill.classList.contains("option-search")) return;
 
             trigger?.addEventListener("click", (event) => {
                 event.stopPropagation();
@@ -132,12 +170,41 @@ const rarities = await getAllData("rarity", lang!);
         });
 
         const order_buttons = document.querySelectorAll<HTMLInputElement>(
-            ".order-summary .order-button",
+            ".order-summary input",
         );
 
         order_buttons.forEach((button) => {
             button.addEventListener("click", () => {
                 const selectedOrder = button.getAttribute("data-value");
+                const isActive = button.classList.contains("active");
+
+                if (!isActive) {
+                    const url = new URL(window.location.href);
+                    url.searchParams.set("sort", selectedOrder!);
+
+                    window.location.href = url.toString();
+                }
+            });
+        });
+
+        const view_buttons = document.querySelectorAll<HTMLInputElement>(
+            ".view-summary input",
+        );
+
+        view_buttons.forEach((button) => {
+            button.addEventListener("click", () => {
+                const selectedView = button.getAttribute("data-value");
+                const isActive = button.classList.contains("active");
+
+                if (!isActive) {
+                    const url = new URL(window.location.href);
+                    if (selectedView === "paged") {
+                        url.searchParams.set("page", "1");
+                    } else {
+                        url.searchParams.delete("page");
+                    }
+                    window.location.href = url.toString();
+                }
             });
         });
 
@@ -158,18 +225,19 @@ const rarities = await getAllData("rarity", lang!);
             "select.select-rarity",
         );
 
-        const search_input = document.querySelector<HTMLInputElement>(".search-input");
-        const search_pill = search_input?.closest('.pill');
+        const search_input =
+            document.querySelector<HTMLInputElement>(".search-input");
+        const search_pill = search_input?.closest(".pill");
 
         search_input?.addEventListener("input", (e) => {
             const target = e.target as HTMLInputElement;
             const hasText = target.value.trim() !== "";
             selectedFilters.search = hasText ? target.value.trim() : null;
-            
+
             if (search_pill) {
-                search_pill.classList.toggle('has-content', hasText);
+                search_pill.classList.toggle("has-content", hasText);
             }
-            
+
             applyFilters();
         });
 
@@ -187,9 +255,13 @@ const rarities = await getAllData("rarity", lang!);
                     selectedFilters,
                 )) {
                     if (filterValue !== null) {
-                        if (filterName === 'search') {
-                            const unitName = unit.getAttribute('data-name')?.toLowerCase() || '';
-                            const searchValue = (filterValue as string).toLowerCase();
+                        if (filterName === "search") {
+                            const unitName =
+                                unit.getAttribute("data-name")?.toLowerCase() ||
+                                "";
+                            const searchValue = (
+                                filterValue as string
+                            ).toLowerCase();
                             if (!unitName.includes(searchValue)) {
                                 unit.classList.add("filtered");
                                 break;
@@ -231,7 +303,7 @@ const rarities = await getAllData("rarity", lang!);
             rarity_select!.value = "0";
             if (search_input) {
                 search_input.value = "";
-                search_pill?.classList.remove('has-content');
+                search_pill?.classList.remove("has-content");
             }
 
             applyFilters();

@@ -4,9 +4,14 @@ import Layout from "../../layouts/Layout.astro";
 import type { Lang } from "../../types/lang.types";
 import type { UnitsResponse } from "../../types/unit.types";
 import UnitGallery from "../../components/gallery/UnitGallery.astro";
+import Pagination from "../../components/gallery/Pagination.astro";
 import OptionSection from "../../components/options/OptionSection.astro";
 
 import { isValidLang } from "../../utils/i18n";
+import { getValidSort } from "../../utils/sort";
+import { getValidPage, isPaginationActive } from "../../utils/pagination";
+
+const url = new URL(Astro.request.url);
 
 const { lang } = Astro.params;
 
@@ -14,11 +19,31 @@ if (!isValidLang(lang)) {
 	return new Response(null, { status: 404, statusText: "Invalid language" });
 }
 
-const { data, meta }: UnitsResponse = await getAllUnits(lang as string);
+const sort = url.searchParams.get("sort");
+const validSort = getValidSort(sort);
+
+const isActive = isPaginationActive(url);
+const pageParam = url.searchParams.get("page");
+const validPage = getValidPage(pageParam);
+const limit = isActive ? 60 : 1000;
+
+if (sort !== validSort) {
+	url.searchParams.set("sort", validSort);
+	return Astro.redirect(url.toString());
+}
+
+if (isActive && pageParam !== validPage.toString()) {
+    url.searchParams.set("page", validPage.toString());
+    return Astro.redirect(url.toString());
+}
+
+const { data, meta }: UnitsResponse = await getAllUnits(lang as string, validSort, validPage, limit);
 ---
 
 <Layout lang={lang as Lang} title="[PERSONAJES] - DBL BOX" current={0}>
-	<OptionSection lang={lang} />
+	<OptionSection lang={lang} currentSort = {validSort} isPaginationActive={isActive}/>
 
 	<UnitGallery data={data} lang={lang as Lang} />
+
+    {isActive && <Pagination meta={meta} currentPage={validPage} />}
 </Layout>

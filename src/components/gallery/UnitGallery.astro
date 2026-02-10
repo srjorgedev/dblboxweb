@@ -1,103 +1,32 @@
 ---
-import type { Lang } from '../../types/lang.types';
-import type { UnitData } from '../../types/unit.types';
+import type { Lang } from "../../types/lang.types";
+import type { UnitData } from "../../types/unit.types";
+import UnitCard from "./UnitCard.astro";
 
 interface Props {
-    data: UnitData[];
-    lang: Lang;
+	data: UnitData[];
+	lang: Lang;
 }
 
-const {data, lang} = Astro.props;
-
-const API_BCHAICO = import.meta.env.PUBLIC_API_BCHAICO;
-const API_COLOR_BANNER = import.meta.env.API_COLOR_BANNER;
+const { data, lang } = Astro.props;
 ---
 
 <section class="unit-gallery">
-		{
-			data.map((unit) => {
-				return (
-					<a 
-					data-id={unit._id}
-					data-num={unit.num}
-					data-name={unit.name.count > 1 ? unit.name.content : unit.name.content.join(",") }
-					data-color={unit.color.content.map((color) => color.id).join(",")}
-					data-tag={unit.tags.content.map((tag) => tag.id).join(",")}
-					data-chapter={unit.chapter.id}
-					data-rarity={unit.rarity.id}
-					data-type={unit.type.id}
-					data-tagswitch={unit.tagswitch}
-					data-zenkai={unit.zenkai}
-					data-transform={unit.transform}
-
-					class="unit-card-a"
-
-					href=`/${lang}/unit/${unit.num}` 
-					href-lang={lang}>
-						<article>
-							<img class="unit-card card-bchaico" src=`${API_BCHAICO}${unit.num}.webp` alt={`image of ${unit._id}`} />
-							{
-								unit.color.content.map((color) => {
-									return (
-										<img class="unit-card color-banner" src=`${API_COLOR_BANNER}COLOR_${color.id}.webp` alt=`image of ${unit._id} banner`>
-									)
-								})
-							}
-						</article>
-					</a>
-				);
-			})
-		}
+	{
+		data.map((unit) => {
+			return <UnitCard unit={unit} lang={lang} />;
+		})
+	}
 </section>
 
-<style>
+<style is:global>
 	.unit-gallery {
+		flex: 1;
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-		gap: 0.25rem 0.75rem;
+		gap: 0.5rem;
 		padding: 0rem 1rem;
 		place-items: center;
 		z-index: 1;
-	}
-
-	.unit-gallery a {
-		text-decoration: none;
-		display: block;
-		transition: transform 0.2s ease-in-out;
-	}
-
-	.unit-gallery a:hover {
-		transform: scale(1.05);
-	}
-
-	.unit-gallery article {
-		position: relative;
-		aspect-ratio: 1 / 1;
-		width: 100%; 
-		overflow: hidden; 
-		border-radius: 8px;
-		display: flex;
-		align-items: center;
-		justify-content: center;
-	}
-
-	.unit-gallery img.unit-card.card-bchaico {
-		width: 100%;
-		height: 100%;
-		z-index: 5;
-	}
-
-	.unit-gallery img.color-banner {
-		position: absolute;
-		bottom: 0;
-		left: 0;
-		width: 100%;
-		object-fit: contain;
-		pointer-events: none; 
-		z-index: 2;
-	}
-
-	a.unit-card-a.filtered {
-		display: none
 	}
 </style>
