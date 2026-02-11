@@ -1,7 +1,10 @@
 ---
 import Layout from "../../../layouts/Layout.astro";
+import type { Lang } from "../../../types/lang.types";
+
+const { lang } = Astro.params as { lang: Lang };
 ---
 
-<Layout>
+<Layout lang={lang} title="Unit Creator - DBLBox">
 	
 </Layout>

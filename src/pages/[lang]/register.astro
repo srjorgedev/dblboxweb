@@ -16,21 +16,27 @@ if (Astro.locals.user) {
 
 const errorMessages: Record<string, string> = {
     invalid_form: "Datos del formulario inválidos.",
-    invalid_credentials: "Email o contraseña incorrectos.",
+    password_too_short: "La contraseña debe tener al menos 8 caracteres.",
+    user_exists: "Ya existe una cuenta con este email.",
     default: "Ocurrió un error. Inténtalo de nuevo."
 };
 ---
 
-<Layout lang={lang} title="Login - DBLBox">
-    <div class="login-container">
-        <h1>Bienvenido a DBLBox</h1>
-        <p>Inicia sesión para guardar tus equipos.</p>
+<Layout lang={lang} title="Registro - DBLBox">
+    <div class="register-container">
+        <h1>Crea tu cuenta</h1>
+        <p>Únete a DBLBox para gestionar tus unidades y equipos.</p>
 
         {error && <p class="error-message">{errorMessages[error] || errorMessages.default}</p>}
 
-        <form action="/api/auth/login" method="POST" class="auth-form">
+        <form action="/api/auth/register" method="POST" class="auth-form">
             <input type="hidden" name="lang" value={lang} />
             
+            <div class="form-group">
+                <label for="username">Nombre de usuario</label>
+                <input type="text" id="username" name="username" required placeholder="Tu apodo" minlength="3" />
+            </div>
+
             <div class="form-group">
                 <label for="email">Email</label>
                 <input type="email" id="email" name="email" required placeholder="tu@email.com" />
@@ -38,34 +44,20 @@ const errorMessages: Record<string, string> = {
 
             <div class="form-group">
                 <label for="password">Contraseña</label>
-                <input type="password" id="password" name="password" required placeholder="********" />
+                <input type="password" id="password" name="password" required placeholder="Mínimo 8 caracteres" minlength="8" />
             </div>
 
-            <button type="submit" class="btn-primary">Iniciar Sesión</button>
+            <button type="submit" class="btn-primary">Registrarse</button>
         </form>
 
-        <div class="divider">
-            <span>o</span>
-        </div>
-
-        <div class="login-buttons">
-            <a href="/login/google" class="btn-oauth google">
-                Entrar con Google
-            </a>
-
-            <a href="/login/twitch" class="btn-oauth twitch">
-                Entrar con Twitch
-            </a>
-        </div>
-
         <p class="auth-footer">
-            ¿No tienes cuenta? <a href={`/${lang}/register`}>Regístrate aquí</a>
+            ¿Ya tienes cuenta? <a href={`/${lang}/login`}>Inicia sesión aquí</a>
         </p>
     </div>
 </Layout>
 
 <style>
-    .login-container {
+    .register-container {
         max-width: 400px;
         margin: 4rem auto;
         padding: 2rem;
@@ -136,51 +128,6 @@ const errorMessages: Record<string, string> = {
     }
 
     .btn-primary:hover {
-        opacity: 0.9;
-    }
-
-    .divider {
-        margin: 2rem 0;
-        position: relative;
-        border-bottom: 1px solid var(--third);
-    }
-
-    .divider span {
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background: var(--main);
-        padding: 0 0.5rem;
-        color: var(--text-second);
-        font-size: 0.9rem;
-    }
-
-    .login-buttons {
-        display: flex;
-        flex-direction: column;
-        gap: 1rem;
-    }
-
-    .btn-oauth {
-        display: block;
-        padding: 0.8rem;
-        border-radius: 4px;
-        text-decoration: none;
-        font-weight: bold;
-        transition: opacity 0.2s;
-        color: white;
-    }
-
-    .btn-oauth.google {
-        background: #4285F4;
-    }
-
-    .btn-oauth.twitch {
-        background: #9146FF;
-    }
-
-    .btn-oauth:hover {
         opacity: 0.9;
     }
 

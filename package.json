@@ -4,7 +4,7 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build --remote",
     "preview": "astro preview",
     "astro": "astro"
   },
@@ -18,6 +18,7 @@
     "@types/react-dom": "^19.2.3",
     "arctic": "^3.7.0",
     "astro": "^5.13.3",
+    "bcryptjs": "^3.0.3",
     "html2canvas": "^1.4.1",
     "nanostores": "^1.1.0",
     "react": "^19.2.4",
@@ -26,5 +27,8 @@
   },
   "overrides": {
     "path-to-regexp": "6.3.0"
+  },
+  "devDependencies": {
+    "@types/bcryptjs": "^2.4.6"
   }
 }

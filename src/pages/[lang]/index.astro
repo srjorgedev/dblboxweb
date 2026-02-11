@@ -43,7 +43,7 @@ const { data, meta }: UnitsResponse = await getAllUnits(lang as string, validSor
 <Layout lang={lang as Lang} title="[PERSONAJES] - DBL BOX" current={0}>
 	<OptionSection lang={lang} currentSort = {validSort} isPaginationActive={isActive}/>
 
-	<UnitGallery data={data} lang={lang as Lang} />
+	<UnitGallery server:defer data={data} lang={lang as Lang} />
 
     {isActive && <Pagination meta={meta} currentPage={validPage} />}
 </Layout>

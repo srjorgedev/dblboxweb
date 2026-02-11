@@ -8,7 +8,7 @@ type Provider = 'google' | 'twitch' | 'facebook' | 'twitter';
 export async function loginOrRegister(
     provider: Provider,
     providerAccountId: string,
-    userData: { username: string; avatar?: string },
+    userData: { username: string; avatar?: string; email?: string },
     currentUserId?: string // <-- Clave: Si viene esto, estamos VINCULANDO
 ) {
 
@@ -21,6 +21,9 @@ export async function loginOrRegister(
         .get();
 
     if (existingAccount) {
+        if (currentUserId && existingAccount.userId !== currentUserId) {
+            throw new Error("This account is already linked to another user.");
+        }
         return await createSession(existingAccount.userId);
     }
 
@@ -29,9 +32,29 @@ export async function loginOrRegister(
         await db.insert(Account).values({
             provider,
             providerAccountId,
-            userId: currentUserId
+            userId: currentUserId,
+            email: userData.email
         });
         return await createSession(currentUserId);
+    }
+
+    // CASO AUTO-LINK: Si el email ya existe en otra cuenta (ej: password login)
+    if (userData.email) {
+        const accountWithSameEmail = await db.select()
+            .from(Account)
+            .where(eq(Account.email, userData.email))
+            .get();
+        
+        if (accountWithSameEmail) {
+            // Vinculamos automáticamente a este usuario existente
+            await db.insert(Account).values({
+                provider,
+                providerAccountId,
+                userId: accountWithSameEmail.userId,
+                email: userData.email
+            });
+            return await createSession(accountWithSameEmail.userId);
+        }
     }
 
     // CASO C: Usuario totalmente nuevo -> REGISTRO
@@ -48,7 +71,8 @@ export async function loginOrRegister(
     await db.insert(Account).values({
         provider,
         providerAccountId,
-        userId: newUserId
+        userId: newUserId,
+        email: userData.email
     });
 
     return await createSession(newUserId);

@@ -14,6 +14,8 @@ const Account = defineTable({
     provider: column.text(),
     providerAccountId: column.text(),
     userId: column.text({ references: () => User.columns.id }),
+    email: column.text({ optional: true }),
+    passwordHash: column.text({ optional: true }),
   },
 
   indexes: [{ on: ["provider", "providerAccountId"], unique: true }]

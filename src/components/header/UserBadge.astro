@@ -14,9 +14,18 @@ const { lang } = Astro.props;
     user != null && (
         <div class="user-widget">
             <div class="user-profile">
-                <img referrerpolicy="no-referrer" src={user.avatar} alt="User Avatar" class="user-avatar" />
+                {user.avatar ? (
+                    <img referrerpolicy="no-referrer" src={user.avatar} alt="User Avatar" class="user-avatar" />
+                ) : (
+                    <div class="user-avatar placeholder">
+                        {user.username.charAt(0).toUpperCase()}
+                    </div>
+                )}
             </div>
             <div class="user-controls">
+                <a href={`/${lang}/profile`} class="control-item">
+                    Mi Perfil
+                </a>
                 <form action="/api/logout" method="POST">
                     <button type="submit" class="control-item logout-btn">
                         Salir
@@ -130,6 +139,16 @@ const { lang } = Astro.props;
                 height: 100%;
                 object-fit: cover;
                 border-radius: 50%;
+
+                &.placeholder {
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    background-color: var(--third);
+                    color: var(--text-main);
+                    font-weight: bold;
+                    font-size: 1.2rem;
+                }
             }
         }
     }

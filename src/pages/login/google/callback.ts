@@ -40,7 +40,11 @@ export async function GET(context: APIContext) {
         const session = await loginOrRegister(
             'google',
             googleUser.sub,
-            { username: googleUser.name, avatar: googleUser.picture },
+            { 
+                username: googleUser.name, 
+                avatar: googleUser.picture,
+                email: googleUser.email
+            },
             currentUserId
         );
 
