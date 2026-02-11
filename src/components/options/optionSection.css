@@ -12,7 +12,7 @@ section.tiermaker-options {
         & h2 {
             font-size: 1.25rem;
             font-weight: 600;
-            color: #eee;
+            color: var(--text-second);
         }
     }
 
@@ -31,32 +31,27 @@ section.tiermaker-options {
             }
 
             &.option-search {
-
                 & div.pill.has-content,
                 & div.pill.has-content:hover {
                     background-color: var(--color-highlight) !important;
-                    color: #111 !important;
+                    color: var(--text-dark) !important;
 
                     & input {
-                        color: #111 !important;
+                        color: var(--text-dark) !important;
 
                         &::placeholder {
-                            color: #111 !important;
+                            color: var(--text-dark) !important;
                         }
                     }
 
                     & svg {
-                        stroke: #111 !important;
+                        stroke: var(--text-dark) !important;
                     }
                 }
 
                 &:hover div.pill:not(.has-content) {
-                    background-color: var(--color-7);
-                    color: #111;
-
-                    & svg {
-                        stroke: #111;
-                    }
+                    background-color: var(--main-hover);
+                    color: var(--text-main);
                 }
             }
 
@@ -68,13 +63,13 @@ section.tiermaker-options {
                 gap: 0.25rem;
                 padding: 0 0.75rem;
                 border-radius: 5rem;
-                background-color: var(--color-6);
-                color: #333;
+                background-color: var(--main);
+                color: var(--text-second);
                 box-sizing: border-box;
                 transition:
                     background-color 0.2s ease,
                     color 0.2s ease;
-                border: none;
+                border: 1px solid var(--second);
                 cursor: pointer;
                 font-family: inherit;
 
@@ -85,8 +80,6 @@ section.tiermaker-options {
                 }
 
                 & svg {
-                    stroke: #333;
-
                     & path {
                         transition: transform 180ms ease;
                         transform-origin: center;
@@ -116,7 +109,7 @@ section.tiermaker-options {
                     }
 
                     &::placeholder {
-                        color: #333;
+                        color: var(--text-second);
                     }
 
                     &::selection {
@@ -137,6 +130,10 @@ section.tiermaker-options {
 
                         &:hover {
                             opacity: 1;
+
+                            &::placeholder {
+                                color: var(--text-main);
+                            }
                         }
                     }
                 }
@@ -172,21 +169,13 @@ section.tiermaker-options {
             &.active div.pill,
             &.active button.pill-button {
                 background-color: var(--color-highlight);
-                color: #111;
-
-                & svg {
-                    stroke: #111;
-                }
+                color: var(--text-dark);
             }
 
             &:not(.active, .option-search):hover div.pill,
             &:not(.active, .option-search):hover button.pill-button {
-                background-color: var(--color-7) !important;
-                color: #111;
-
-                & svg {
-                    stroke: #111;
-                }
+                background-color: var(--main-hover) !important;
+                color: var(--text-main);
             }
 
             & div.summary {
@@ -196,13 +185,11 @@ section.tiermaker-options {
                 left: 0;
                 top: calc(100% + 0.5rem);
                 width: auto;
-                min-width: 220px;
-                gap: 0.5rem;
-                padding: 1rem;
-                background-color: rgba(0, 0, 0, 0.1);
+                min-width: 240px;
+                background-color: var(--second);
                 backdrop-filter: blur(4rem);
                 border-radius: 1rem;
-                border: 1px solid rgba(255, 255, 255, 0.1);
+                border: 1px solid var(--third);
                 z-index: 100;
                 overflow: hidden;
 
@@ -221,38 +208,45 @@ section.tiermaker-options {
                 }
 
                 & button.reset-filters-btn {
-                    width: 100%;
-                    height: 2.5rem;
+                    margin: 0.75rem 1rem 1rem 1rem;
+                    height: 2.75rem;
                     display: flex;
                     align-items: center;
                     justify-content: center;
                     gap: 0.75rem;
-                    border-radius: 5rem;
-                    margin-top: 0.5rem;
                     cursor: pointer;
-                    border: none;
-                    background-color: var(--color-6);
-                    color: #333;
+                    border: 1px solid var(--third);
+                    background-color: transparent;
+                    color: var(--text-second);
+                    font-size: 0.85rem;
+                    font-weight: 600;
+                    border-radius: 0.75rem;
                     transition:
                         background-color 0.2s ease,
+                        color 0.2s ease,
+                        border-color 0.2s ease,
                         transform 0.2s ease;
 
                     &:hover {
-                        background-color: var(--color-7);
+                        background-color: rgba(255, 214, 10, 0.1);
+                        border-color: rgba(255, 214, 10, 0.3);
+                        color: var(--color-highlight);
 
                         & svg {
-                            transform: rotate(360deg);
+                            transform: rotate(180deg);
+                            stroke: var(--color-highlight);
                         }
                     }
 
                     &:active {
-                        transform: scale(0.98);
+                        transform: scale(0.96);
                     }
 
                     & svg {
-                        transition: transform 0.333s ease;
-                        width: 1.25rem;
-                        height: 1.25rem;
+                        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+                        width: 1.1rem;
+                        height: 1.1rem;
+                        stroke: #eee;
                     }
                 }
             }

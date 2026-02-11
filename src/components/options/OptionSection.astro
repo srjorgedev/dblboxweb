@@ -119,7 +119,7 @@ const rarities = await getAllData("rarity", lang!);
 </section>
 
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
+    function setupOptionSection() {
         type FilterState = {
             [key: string]: string | number | null;
         };
@@ -241,7 +241,7 @@ const rarities = await getAllData("rarity", lang!);
             applyFilters();
         });
 
-        const reset_btn = document.querySelector<HTMLInputElement>(
+        const reset_btn = document.querySelector<HTMLButtonElement>(
             "button.reset-filters-btn",
         );
 
@@ -296,11 +296,14 @@ const rarities = await getAllData("rarity", lang!);
                 selectedFilters[key] = null;
             }
 
-            tag_select!.value = "0";
-            chapter_select!.value = "0";
-            color_select!.value = "0";
-            type_select!.value = "0";
-            rarity_select!.value = "0";
+            const selects = [tag_select, chapter_select, color_select, type_select, rarity_select];
+            selects.forEach(select => {
+                if (select) {
+                    select.value = "0";
+                    select.dispatchEvent(new Event('change'));
+                }
+            });
+
             if (search_input) {
                 search_input.value = "";
                 search_pill?.classList.remove("has-content");
@@ -322,10 +325,13 @@ const rarities = await getAllData("rarity", lang!);
             });
         }
 
-        setFilter(tag_select!, "tag");
-        setFilter(chapter_select!, "chapter");
-        setFilter(color_select!, "color");
-        setFilter(type_select!, "type");
-        setFilter(rarity_select!, "rarity");
-    });
+        if (tag_select) setFilter(tag_select, "tag");
+        if (chapter_select) setFilter(chapter_select, "chapter");
+        if (color_select) setFilter(color_select, "color");
+        if (type_select) setFilter(type_select, "type");
+        if (rarity_select) setFilter(rarity_select, "rarity");
+    }
+
+    document.addEventListener("DOMContentLoaded", setupOptionSection);
+    document.addEventListener("astro:after-swap", setupOptionSection);
 </script>

@@ -21,12 +21,11 @@ const { data, lang } = Astro.props;
 
 <style is:global>
 	.unit-gallery {
-		flex: 1;
 		display: grid;
 		grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
-		gap: 0.5rem;
-		padding: 0rem 1rem;
-		place-items: center;
-		z-index: 1;
+		gap: 1rem;
+		padding: 1rem;
+		width: 100%;
+		box-sizing: border-box;
 	}
 </style>

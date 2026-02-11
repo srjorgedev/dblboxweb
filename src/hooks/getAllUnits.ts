@@ -10,8 +10,6 @@ export async function getAllUnits(lang: string, sort = "history", page: number =
     url.searchParams.append("page", page.toString());
     url.searchParams.append("order", sort)
 
-    console.log(url)
-
     const response = await fetch(url.toString());
 
     if (!response.ok) {

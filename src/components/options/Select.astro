@@ -1,5 +1,6 @@
 ---
 import type { Data } from "../../types/data.types";
+import DropArrow from "../svg/DropArrow.astro";
 
 interface Props {
     data: Data[];
@@ -11,41 +12,166 @@ const { data, name, label } = Astro.props;
 ---
 
 <div class="select-container">
-    <label for={name}>{label}</label>
-    <select name={name} class={`select-${name}`}>
-        <option value="0" selected disabled aria-disabled="true"
-            >Opciones...</option
-        >
+    <select
+        name={name}
+        id={name}
+        class={`select-${name} custom-select`}
+        data-label={label}
+    >
+        <option value="0">{label}</option>
         {
             data.map((el) => {
-                return <option value={el.id}>{el.name}</option>;
+                return (
+                    <option value={el.id} data-name={el.name}>
+                        {el.name}
+                    </option>
+                );
             })
         }
     </select>
+    <label class="custom-label" for={name}>
+        <span class="label-prefix">{label}:</span>
+        <span class="label-value"></span>
+    </label>
+    <div class="icon-container">
+        <DropArrow />
+    </div>
 </div>
 
 <style>
     div.select-container {
         display: flex;
-        flex-direction: column;
         margin-right: 0;
         position: relative;
-        width: 15rem;
+        width: 100%;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 
-        & label {
-            margin-bottom: 0.25rem;
-            font-weight: normal;
+        &:last-child {
+            border-bottom: none;
+        }
+
+        & .custom-label {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            padding: 0 2.5rem 0 1.25rem;
+            pointer-events: none;
+            z-index: 9;
             font-size: 0.95rem;
+            white-space: nowrap;
+            overflow: hidden;
+
+            & .label-prefix {
+                color: var(--color-highlight, #fff);
+                margin-right: 0.35rem;
+                font-weight: 500;
+                opacity: 0.7;
+                flex-shrink: 0;
+            }
+
+            & .label-value {
+                color: #ffffff;
+                font-weight: 500;
+                text-overflow: ellipsis;
+                overflow: hidden;
+                white-space: nowrap;
+            }
         }
 
         & select {
-            padding: 0.5rem;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            font-size: 0.85rem;
+            padding: 1rem 2.5rem 1rem 1.25rem;
+            border: none;
+            border-radius: 0;
+            font-size: 0.95rem;
             width: 100%;
             white-space: nowrap;
             text-overflow: ellipsis;
+            z-index: 8;
+            outline: none;
+            background: transparent;
+            cursor: pointer;
+            color: transparent;
+            transition: all 0.2s ease;
+            appearance: none;
+
+            & option {
+                background-color: #1a1a1a;
+                color: #fff;
+                padding: 1rem;
+            }
+
+            &:hover {
+                background-color: rgba(255, 255, 255, 0.05);
+            }
+        }
+
+        & .icon-container {
+            position: absolute;
+            right: 1.25rem;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            z-index: 10;
+            width: 1rem;
+            height: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #6b7280;
+            transition: all 0.2s ease;
+        }
+
+        & select.selected ~ .icon-container {
+            color: var(--color-highlight, #fff);
+        }
+
+        & select:focus ~ .icon-container {
+            transform: translateY(-50%) rotate(180deg);
         }
     }
 </style>
+
+<script>
+    function setupSelects() {
+        const containers =
+            document.querySelectorAll<HTMLElement>(".select-container");
+
+        containers.forEach((container) => {
+            const select =
+                container.querySelector<HTMLSelectElement>(".custom-select");
+            const labelValue =
+                container.querySelector<HTMLElement>(".label-value");
+            const labelPrefix = 
+                container.querySelector<HTMLElement>(".label-prefix");
+
+            if (!select || !labelValue || !labelPrefix) return;
+
+            const updateUI = () => {
+                const selectedOption = select.options[select.selectedIndex];
+                const originalName = selectedOption.getAttribute("data-name");
+                const label = select.getAttribute("data-label");
+
+                if (select.value === "0") {
+                    select.classList.remove("selected");
+                    labelPrefix.style.display = "none";
+                    labelValue.textContent = label;
+                    labelValue.style.opacity = "0.7";
+                    labelValue.style.display = "inline";
+                } else {
+                    select.classList.add("selected");
+                    labelPrefix.style.display = "inline";
+                    labelValue.style.opacity = "1";
+                    labelValue.style.display = "inline";
+                    labelValue.textContent = originalName || selectedOption.textContent;
+                }
+            };
+
+            select.addEventListener("change", updateUI);
+            updateUI();
+        });
+    }
+
+    setupSelects();
+    document.addEventListener("astro:after-swap", setupSelects);
+</script>

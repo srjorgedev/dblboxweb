@@ -74,7 +74,7 @@ const rarities = await getAllData("rarity", lang!);
 </section>
 
 <script>
-    document.addEventListener("DOMContentLoaded", () => {
+    function setupTierMakerOptions() {
         type FilterState = {
             [key: string]: string | number | null;
         };
@@ -122,16 +122,6 @@ const rarities = await getAllData("rarity", lang!);
 
         allSummaries.forEach((s) => {
             s.addEventListener("click", (e) => e.stopPropagation());
-        });
-
-        const order_buttons = document.querySelectorAll<HTMLInputElement>(
-            ".order-summary .order-button",
-        );
-
-        order_buttons.forEach((button) => {
-            button.addEventListener("click", () => {
-                const selectedOrder = button.getAttribute("data-value");
-            });
         });
 
         const units =
@@ -218,7 +208,7 @@ const rarities = await getAllData("rarity", lang!);
             reset_tier_btn.style.pointerEvents = "";
         });
 
-        const reset_btn = document.querySelector<HTMLInputElement>(
+        const reset_btn = document.querySelector<HTMLButtonElement>(
             "button.reset-filters-btn",
         );
 
@@ -269,11 +259,14 @@ const rarities = await getAllData("rarity", lang!);
                 selectedFilters[key] = null;
             }
 
-            tag_select!.value = "0";
-            chapter_select!.value = "0";
-            color_select!.value = "0";
-            type_select!.value = "0";
-            rarity_select!.value = "0";
+            const selects = [tag_select, chapter_select, color_select, type_select, rarity_select];
+            selects.forEach(select => {
+                if (select) {
+                    select.value = "0";
+                    select.dispatchEvent(new Event('change'));
+                }
+            });
+
             if (search_input) {
                 search_input.value = "";
                 search_pill?.classList.remove('has-content');
@@ -295,10 +288,13 @@ const rarities = await getAllData("rarity", lang!);
             });
         }
 
-        setFilter(tag_select!, "tag");
-        setFilter(chapter_select!, "chapter");
-        setFilter(color_select!, "color");
-        setFilter(type_select!, "type");
-        setFilter(rarity_select!, "rarity");
-    });
+        if (tag_select) setFilter(tag_select, "tag");
+        if (chapter_select) setFilter(chapter_select, "chapter");
+        if (color_select) setFilter(color_select, "color");
+        if (type_select) setFilter(type_select, "type");
+        if (rarity_select) setFilter(rarity_select, "rarity");
+    }
+
+    document.addEventListener("DOMContentLoaded", setupTierMakerOptions);
+    document.addEventListener("astro:after-swap", setupTierMakerOptions);
 </script>

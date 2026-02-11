@@ -80,20 +80,31 @@ const texts = getTranslations(lang);
                     height: 38px;
                     width: 38px;
                     aspect-ratio: 1 / 1;
-                    border-radius: 4px;
+                    border-radius: 50%;
                     align-self: self-end;
+                    background-color: var(--color-6);
+                    color: #333;
                     transition:
                         background-color 0.2s ease,
                         transform 0.2s ease;
-                    border-radius: 100%;
 
                     &:hover {
-                        background-color: #cdcdcd;
+                        background-color: var(--color-7);
+                        
+                        & :global(svg) {
+                            transform: rotate(180deg);
+                        }
                     }
 
                     &:active {
-                        background-color: #b3b3b3;
-                        transform: rotate(180deg);
+                        transform: scale(0.9);
+                    }
+
+                    & :global(svg) {
+                        transition: transform 0.3s ease;
+                        width: 1.25rem;
+                        height: 1.25rem;
+                        stroke: #333;
                     }
                 }
             }
@@ -174,11 +185,13 @@ const texts = getTranslations(lang);
                 selectedFilters[key] = null;
             }
 
-            tag_select!.value = "0";
-            chapter_select!.value = "0";
-            color_select!.value = "0";
-            type_select!.value = "0";
-            rarity_select!.value = "0";
+            const selects = [tag_select, chapter_select, color_select, type_select, rarity_select];
+            selects.forEach(select => {
+                if (select) {
+                    select.value = "0";
+                    select.dispatchEvent(new Event('change'));
+                }
+            });
 
             applyFilters();
         }
